@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Leads Online (Conectado)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/cdn.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        .gemini-response { white-space: pre-wrap; }
+        .loader { width: 24px; height: 24px; border: 3px solid #f3f3f3; border-top: 3px solid #6366f1; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .main-loader { display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; }
+        .tag-filter.active { background-color: #4f46e5; color: white; font-weight: 600; }
+        .timeline-item:not(:last-child) { border-bottom: 1px solid #e5e7eb; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div id="loader-screen" class="main-loader">
+        <div class="loader"></div>
+        <p class="mt-4 text-slate-600">Carregando dados da planilha...</p>
+    </div>
+
+    <div id="dashboard-content" class="container mx-auto p-4 md:p-8 hidden">
+        <!-- Cabeçalho -->
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-slate-900">Dashboard de Leads Online</h1>
+            <p class="text-slate-500 mt-1">Visão em tempo real do desempenho da equipe e dos canais de aquisição.</p>
+        </header>
+
+        <!-- Seção de Filtros -->
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Filtrar por Período</label>
+                    <input type="date" id="start-date-picker" class="w-full p-2 border border-slate-300 rounded-lg">
+                    <input type="date" id="end-date-picker" class="w-full p-2 border border-slate-300 rounded-lg mt-2">
+                </div>
+                <div class="md:col-span-2">
+                     <label class="block text-sm font-medium text-slate-700 mb-2">Filtrar por Situação (Tags)</label>
+                     <div id="tags-filter-container" class="flex flex-wrap gap-2">
+                        <!-- Tags serão inseridas aqui via JS -->
+                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de KPIs Principais (Cartões) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="text-sm font-medium text-slate-500">Total de Leads</h3>
+                <p id="kpi-total-leads" class="text-3xl font-bold mt-2">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="text-sm font-medium text-slate-500">Em Negociação</h3>
+                <p id="kpi-em-negociacao" class="text-3xl font-bold mt-2">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="text-sm font-medium text-slate-500">Leads Fechados</h3>
+                <p id="kpi-fechados" class="text-3xl font-bold mt-2">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="text-sm font-medium text-slate-500">Outros Status</h3>
+                <p id="kpi-outros" class="text-3xl font-bold mt-2">0</p>
+            </div>
+        </div>
+
+        <!-- Seção Timeline e Gemini -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Timeline de Observações -->
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="font-semibold text-slate-800 mb-4 text-lg">Timeline de Observações</h3>
+                <div id="timeline-container" class="h-96 overflow-y-auto pr-2">
+                    <div id="timeline-placeholder" class="text-center text-slate-500 pt-16">Nenhuma observação encontrada para o período selecionado.</div>
+                </div>
+            </div>
+            
+            <!-- Análise Inteligente com Gemini -->
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="font-semibold text-slate-800 mb-4 text-lg">Análise Inteligente com Gemini</h3>
+                <div class="flex flex-wrap gap-4 mb-4">
+                    <button id="generateSummaryBtn" class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2">
+                        ✨ Gerar Resumo
+                    </button>
+                    <button id="generateActionsBtn" class="bg-teal-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-teal-600 transition-colors flex items-center gap-2">
+                        ✨ Sugerir Ações
+                    </button>
+                </div>
+                <div id="geminiOutput" class="bg-slate-100 p-4 rounded-lg h-80 overflow-y-auto text-sm text-slate-700 border border-slate-200">
+                    <div id="geminiPlaceholder" class="text-slate-500">Clique em um dos botões acima para receber insights gerados por IA sobre os dados filtrados.</div>
+                    <div id="geminiLoader" class="hidden flex items-center justify-center py-4">
+                        <div class="loader"></div>
+                        <p class="ml-4 text-slate-500">Analisando dados...</p>
+                    </div>
+                    <div id="geminiResponse" class="gemini-response"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Gráficos -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
+            <div class="lg:col-span-3 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="font-semibold text-slate-800 mb-4">Volume de Leads por Dia</h3>
+                <div class="chart-container" style="height: 320px;">
+                    <canvas id="volumeChart"></canvas>
+                </div>
+            </div>
+            <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="font-semibold text-slate-800 mb-4">Leads por Situação</h3>
+                 <div class="chart-container" style="height: 320px;">
+                    <canvas id="situacaoChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+             <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="font-semibold text-slate-800 mb-4">Origem dos Leads (Canais)</h3>
+                <div class="chart-container">
+                    <canvas id="origemChart"></canvas>
+                </div>
+            </div>
+             <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="font-semibold text-slate-800 mb-4">Desempenho por Consultor</h3>
+                <div class="chart-container">
+                    <canvas id="consultorChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const googleSheetUrl = 'https://docs.google.com/spreadsheets/d/15G9YGn6BJ89bpx6MkZBhOiRiwiSPOX3qZ4A8SQvf1Wg/gviz/tq?tqx=out:json'; 
+        
+        let fullRawData = [];
+        let charts = {};
+        
+        const filters = {
+            startDate: null,
+            endDate: null,
+            situacao: 'TODOS'
+        };
+
+        // Espera o DOM e as bibliotecas estarem 100% carregadas
+        document.addEventListener('DOMContentLoaded', () => {
+            const libraryCheckInterval = setInterval(() => {
+                if (typeof window.Chart !== 'undefined' && typeof window.dateFns !== 'undefined') {
+                    clearInterval(libraryCheckInterval);
+                    initializeApp();
+                }
+            }, 100);
+        });
+
+        async function initializeApp() {
+            if (!googleSheetUrl) {
+                document.getElementById('loader-screen').innerHTML = `<p class="text-red-600 font-semibold">ERRO: URL da planilha não configurada.</p>`;
+                return;
+            }
+            fullRawData = await fetchData(googleSheetUrl);
+            if(fullRawData) {
+                setupFilters();
+                updateDashboard();
+                document.getElementById('loader-screen').classList.add('hidden');
+                document.getElementById('dashboard-content').classList.remove('hidden');
+            }
+        }
+
+        // Função de busca de dados refeita para ser mais robusta
+        async function fetchData(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const jsonpText = await response.text();
+                const match = jsonpText.match(/google\.visualization\.Query\.setResponse\((.*)\)/s);
+                if (!match || !match[1]) throw new Error("Formato de resposta da planilha inesperado.");
+
+                const jsonString = match[1];
+                const result = JSON.parse(jsonString);
+                
+                if (result.status === 'error') throw new Error(`Erro da API do Google Sheets: ${result.errors.map(e => e.detailed_message).join(', ')}`);
+                
+                const rawHeaders = result.table.cols.map(col => (col.label || '').toUpperCase().trim());
+                
+                // Mapeamento inteligente de colunas para encontrar o índice correto
+                const colMap = {
+                    data: rawHeaders.indexOf('DATA'),
+                    consultor: rawHeaders.indexOf('CONSULTOR'),
+                    indicacao: rawHeaders.indexOf('INDICAÇÃO'),
+                    situacao: rawHeaders.indexOf('SITUAÇÃO'), // Encontra a PRIMEIRA coluna com este nome
+                    observacao: rawHeaders.indexOf('OBSERVAÇÃO')
+                };
+
+                if (colMap.data === -1 || colMap.situacao === -1) {
+                    throw new Error("Colunas essenciais 'DATA' e 'SITUAÇÃO' não encontradas na planilha.");
+                }
+
+                const rows = result.table.rows;
+
+                return rows.map(row => {
+                    if (!row || !row.c) return null;
+
+                    const getCellValue = (index) => (index > -1 && row.c[index] ? row.c[index].v : null);
+
+                    const rowData = {
+                        data: getCellValue(colMap.data),
+                        consultor: getCellValue(colMap.consultor),
+                        indicacao: getCellValue(colMap.indicacao),
+                        situacao: getCellValue(colMap.situacao),
+                        observacao: getCellValue(colMap.observacao),
+                        jsDate: null
+                    };
+
+                    if (rowData.data && typeof rowData.data === 'string' && rowData.data.startsWith('Date(')) {
+                        const parts = rowData.data.substring(5, rowData.data.length - 1).split(',');
+                        rowData.jsDate = new Date(parts[0], parts[1], parts[2]);
+                    }
+                    
+                    return rowData;
+                }).filter(item => item && item.jsDate);
+            } catch (error) {
+                console.error('Erro ao buscar ou processar dados:', error);
+                document.getElementById('loader-screen').innerHTML = `<p class="text-red-600 font-semibold">Falha ao carregar os dados.</p><p class="text-slate-600 mt-2">Verifique o link, as permissões e a estrutura da planilha.</p>`;
+                return null;
+            }
+        }
+
+        function setupFilters() {
+            const startDatePicker = document.getElementById('start-date-picker');
+            const endDatePicker = document.getElementById('end-date-picker');
+
+            const thirtyDaysAgo = window.dateFns.subDays(new Date(), 30);
+            filters.startDate = thirtyDaysAgo;
+            filters.endDate = new Date();
+            
+            startDatePicker.value = window.dateFns.format(thirtyDaysAgo, 'yyyy-MM-dd');
+            endDatePicker.value = window.dateFns.format(new Date(), 'yyyy-MM-dd');
+
+            startDatePicker.addEventListener('change', (e) => {
+                filters.startDate = window.dateFns.parse(e.target.value, 'yyyy-MM-dd', new Date());
+                updateDashboard();
+            });
+            endDatePicker.addEventListener('change', (e) => {
+                filters.endDate = window.dateFns.parse(e.target.value, 'yyyy-MM-dd', new Date());
+                updateDashboard();
+            });
+
+            const tagsContainer = document.getElementById('tags-filter-container');
+            const situacoes = [...new Set(fullRawData.map(item => item.situacao).filter(Boolean))];
+            
+            const createTag = (name) => {
+                const button = document.createElement('button');
+                button.className = 'tag-filter px-3 py-1.5 text-sm rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors';
+                button.textContent = name;
+                button.dataset.situacao = name.toUpperCase();
+                if (name.toUpperCase() === 'TODOS') button.classList.add('active');
+                
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.tag-filter').forEach(tag => tag.classList.remove('active'));
+                    button.classList.add('active');
+                    filters.situacao = button.dataset.situacao;
+                    updateDashboard();
+                });
+                return button;
+            };
+
+            tagsContainer.innerHTML = '';
+            tagsContainer.appendChild(createTag('TODOS'));
+            situacoes.forEach(situacao => tagsContainer.appendChild(createTag(situacao)));
+        }
+
+        function applyFilters() {
+            let filteredData = [...fullRawData];
+
+            if (filters.startDate && filters.endDate) {
+                filteredData = filteredData.filter(item => {
+                    const itemDate = item.jsDate;
+                    return itemDate >= filters.startDate && itemDate <= filters.endDate;
+                });
+            }
+
+            if (filters.situacao !== 'TODOS') {
+                filteredData = filteredData.filter(item => item.situacao && item.situacao.toUpperCase() === filters.situacao);
+            }
+            
+            return filteredData;
+        }
+
+        function updateDashboard() {
+            const filteredData = applyFilters();
+            const processedData = processAllData(filteredData);
+            updateKPIs(filteredData, processedData.situacaoData);
+            updateTimeline(filteredData);
+
+            if (Object.keys(charts).length === 0) {
+                initializeCharts(processedData);
+            } else {
+                updateCharts(processedData);
+            }
+        }
+
+        function processAllData(data) {
+             const countOccurrences = (arr, key) => arr.reduce((acc, item) => {
+                const itemKey = item[key];
+                if (itemKey) acc[itemKey] = (acc[itemKey] || 0) + 1;
+                return acc;
+            }, {});
+
+            const situacaoCounts = countOccurrences(data, 'situacao');
+            const consultorCounts = countOccurrences(data, 'consultor');
+            const origemCounts = countOccurrences(data, 'indicacao');
+            
+            const volumeCounts = data.reduce((acc, item) => {
+                const formattedDate = window.dateFns.format(item.jsDate, 'dd/MM/yyyy');
+                acc[formattedDate] = (acc[formattedDate] || 0) + 1;
+                return acc;
+            }, {});
+
+            const sortedVolume = Object.entries(volumeCounts).sort((a, b) => {
+                 return window.dateFns.compareAsc(
+                    window.dateFns.parse(a[0], 'dd/MM/yyyy', new Date()),
+                    window.dateFns.parse(b[0], 'dd/MM/yyyy', new Date())
+                 );
+            });
+            
+            return {
+                situacaoData: { labels: Object.keys(situacaoCounts), values: Object.values(situacaoCounts) },
+                consultorData: { labels: Object.keys(consultorCounts), values: Object.values(consultorCounts) },
+                origemData: { labels: Object.keys(origemCounts), values: Object.values(origemCounts) },
+                volumeData: { labels: sortedVolume.map(item => item[0].substring(0,5)), values: sortedVolume.map(item => item[1]) }
+            };
+        }
+        
+        function updateKPIs(data, situacaoData) {
+            document.getElementById('kpi-total-leads').textContent = data.length;
+            let negociacaoCount = 0, fechadoCount = 0, outrosCount = 0;
+
+            if(situacaoData && situacaoData.labels){
+                situacaoData.labels.forEach((label, index) => {
+                    const upperLabel = (label || '').toUpperCase().trim();
+                    if (upperLabel.includes('NEGOCIAÇÃO')) {
+                        negociacaoCount += situacaoData.values[index];
+                    } else if (upperLabel.includes('FECHADO')) {
+                        fechadoCount += situacaoData.values[index];
+                    } else {
+                        outrosCount += situacaoData.values[index];
+                    }
+                });
+            }
+            
+            document.getElementById('kpi-em-negociacao').textContent = negociacaoCount;
+            document.getElementById('kpi-fechados').textContent = fechadoCount;
+            document.getElementById('kpi-outros').textContent = outrosCount;
+        }
+
+        function updateTimeline(data) {
+            const container = document.getElementById('timeline-container');
+            container.innerHTML = ''; 
+            
+            const recentObservations = data
+                .filter(item => item && item.observacao)
+                .sort((a,b) => window.dateFns.compareDesc(a.jsDate, b.jsDate))
+                .slice(0, 50); 
+
+            if (recentObservations.length === 0) {
+                container.innerHTML = `<div id="timeline-placeholder" class="text-center text-slate-500 pt-16">Nenhuma observação encontrada para o período selecionado.</div>`;
+                return;
+            }
+
+            recentObservations.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'timeline-item py-4';
+                const consultor = item.consultor || 'N/A';
+                const dataFormatada = window.dateFns.format(item.jsDate, 'dd/MM/yyyy');
+                div.innerHTML = `
+                    <p class="text-sm text-slate-800">${item.observacao}</p>
+                    <div class="text-xs text-slate-500 mt-2">
+                        <span><strong>Consultor:</strong> ${consultor}</span> | 
+                        <span><strong>Data:</strong> ${dataFormatada}</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateCharts(processedData) {
+            const { situacaoData, consultorData, origemData, volumeData } = processedData;
+            charts.situacao.data.labels = situacaoData.labels;
+            charts.situacao.data.datasets[0].data = situacaoData.values;
+            charts.situacao.update();
+
+            charts.consultor.data.labels = consultorData.labels;
+            charts.consultor.data.datasets[0].data = consultorData.values;
+            charts.consultor.update();
+            
+            charts.origem.data.labels = origemData.labels;
+            charts.origem.data.datasets[0].data = origemData.values;
+            charts.origem.update();
+            
+            charts.volume.data.labels = volumeData.labels;
+            charts.volume.data.datasets[0].data = volumeData.values;
+            charts.volume.update();
+        }
+
+        const generateSummaryBtn = document.getElementById('generateSummaryBtn');
+        const generateActionsBtn = document.getElementById('generateActionsBtn');
+
+        [generateSummaryBtn, generateActionsBtn].forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const filteredData = applyFilters();
+                const processedData = processAllData(filteredData);
+                
+                let prompt = '';
+                const startDateFormatted = window.dateFns.format(filters.startDate, 'dd/MM/yy');
+                const endDateFormatted = window.dateFns.format(filters.endDate, 'dd/MM/yy');
+
+                if(e.currentTarget.id === 'generateSummaryBtn') {
+                    prompt = `Você é um analista de vendas sênior. Analise os seguintes dados filtrados de um dashboard de leads e escreva um resumo conciso sobre a performance. Período analisado de ${startDateFormatted} a ${endDateFormatted}. Situação filtrada: ${filters.situacao}. Dados: Situação dos Leads: ${JSON.stringify(processedData.situacaoData)}, Performance por Consultor: ${JSON.stringify(processedData.consultorData)}, Origem: ${JSON.stringify(processedData.origemData)}. Resumo da Performance:`;
+                } else {
+                    prompt = `Você é um consultor de estratégia de vendas. Com base nos dados filtrados a seguir, sugira 3 ações práticas para melhorar os resultados. Período: ${startDateFormatted} a ${endDateFormatted}. Situação: ${filters.situacao}. Dados: Situação dos Leads: ${JSON.stringify(processedData.situacaoData)}, Performance por Consultor: ${JSON.stringify(processedData.consultorData)}, Origem: ${JSON.stringify(processedData.origemData)}. Ações Sugeridas:`;
+                }
+                callGeminiAPI(prompt);
+            });
+        });
+
+        async function callGeminiAPI(prompt) {
+            const geminiPlaceholder = document.getElementById('geminiPlaceholder');
+            const geminiLoader = document.getElementById('geminiLoader');
+            const geminiResponse = document.getElementById('geminiResponse');
+
+            geminiPlaceholder.classList.add('hidden');
+            geminiResponse.textContent = '';
+            geminiLoader.classList.remove('hidden');
+
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+
+                if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                geminiResponse.textContent = text || "Não foi possível obter uma resposta da IA.";
+
+            } catch (error) {
+                console.error("Erro ao chamar a API Gemini:", error);
+                geminiResponse.textContent = "Ocorreu um erro ao tentar analisar os dados.";
+            } finally {
+                geminiLoader.classList.add('hidden');
+            }
+        };
+
+        function initializeCharts(processedData) {
+            const { situacaoData, consultorData, origemData, volumeData } = processedData;
+            const defaultOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif" } } } }, scales: { x: { grid: { display: false }, ticks: { font: { family: "'Inter', sans-serif" }}}, y: { grid: { color: '#e2e8f0', borderDash: [3, 3] }, ticks: { font: { family: "'Inter', sans-serif" }}, beginAtZero: true } } };
+
+            charts.situacao = new Chart(document.getElementById('situacaoChart'), { type: 'doughnut', data: { labels: situacaoData.labels, datasets: [{ data: situacaoData.values, backgroundColor: ['#3b82f6', '#ef4444', '#22c55e', '#a855f7', '#f97316', '#14b8a6', '#f59e0b', '#84cc16', '#64748b'], borderColor: '#fff', borderWidth: 4 }] }, options: { ...defaultOptions, plugins: { ...defaultOptions.plugins, legend: { position: 'right' }}, cutout: '60%', scales: { x: { display: false }, y: { display: false }} } });
+            charts.consultor = new Chart(document.getElementById('consultorChart'), { type: 'bar', data: { labels: consultorData.labels, datasets: [{ label: 'Leads Ativos', data: consultorData.values, backgroundColor: '#6366f1', borderRadius: 4 }] }, options: { ...defaultOptions, plugins: { legend: { display: false }}} });
+            charts.origem = new Chart(document.getElementById('origemChart'), { type: 'bar', data: { labels: origemData.labels, datasets: [{ label: 'Número de Leads', data: origemData.values, backgroundColor: ['#14b8a6', '#0ea5e9', '#8b5cf6', '#f97316' ], borderRadius: 4 }] }, options: { ...defaultOptions, indexAxis: 'y', plugins: { legend: { display: false }} } });
+            charts.volume = new Chart(document.getElementById('volumeChart'), { type: 'line', data: { labels: volumeData.labels, datasets: [{ label: 'Novos Leads', data: volumeData.values, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.4, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', pointHoverRadius: 6, pointRadius: 4, }] }, options: { ...defaultOptions, plugins: { legend: { display: false }}} });
+        }
+    </script>
+</body>
+</html>
