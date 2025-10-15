@@ -16,7 +16,6 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* bg-gray-100 */
         }
         .loader {
             border: 4px solid #d1d5db;
@@ -29,29 +28,6 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
-        .custom-legend ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .custom-legend li {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            margin-bottom: 8px;
-            transition: color 0.2s;
-            color: #4b5563; /* text-gray-600 */
-        }
-        .custom-legend li.hidden-item {
-            text-decoration: line-through;
-            color: #9ca3af; /* text-gray-400 */
-        }
-        .custom-legend .legend-swatch {
-            width: 14px;
-            height: 14px;
-            border-radius: 3px;
-            margin-right: 10px;
         }
         .header-bg {
             background-color: #6366f1; /* brand-primary */
@@ -76,7 +52,7 @@
         }
     </script>
 </head>
-<body class="bg-brand-secondary text-brand-text">
+<body class="bg-slate-100 text-slate-700">
 
     <div class="relative">
         <!-- Header with brand style -->
@@ -106,29 +82,37 @@
 
         <div class="container mx-auto p-4 md:p-8 -mt-20 relative z-20">
             <!-- Seção de Filtros -->
-            <div class="bg-white p-4 rounded-lg shadow-md mb-6">
-                <div class="flex flex-col gap-4">
-                    <!-- Row 1: Filters -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <select id="filter-consultor" class="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-primary-light w-full">
+            <div class="bg-white p-5 rounded-xl shadow-md mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-slate-700">Filtros e Período</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                    <div>
+                        <label for="filter-consultor" class="block text-sm font-medium text-slate-600 mb-1">Consultor</label>
+                        <select id="filter-consultor" class="w-full bg-slate-50 border-slate-300 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-primary-light">
                             <option value="">Todos os Consultores</option>
                         </select>
-                        <select id="filter-situacao" class="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-primary-light w-full">
+                    </div>
+                    <div>
+                        <label for="filter-situacao" class="block text-sm font-medium text-slate-600 mb-1">Situação</label>
+                        <select id="filter-situacao" class="w-full bg-slate-50 border-slate-300 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-primary-light">
                             <option value="">Todas as Situações</option>
                         </select>
-                        <div class="flex items-center gap-2">
-                            <label for="start-date" class="text-sm text-gray-600">De:</label>
-                            <input type="date" id="start-date" class="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full">
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <label for="end-date" class="text-sm text-gray-600">Até:</label>
-                            <input type="date" id="end-date" class="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full">
-                        </div>
                     </div>
-                    <!-- Row 2: Buttons -->
-                    <div class="flex justify-end gap-4">
-                        <button id="filter-btn" class="bg-brand-primary hover:bg-brand-primary-dark text-white font-bold py-2 px-4 rounded-lg transition-colors">Filtrar</button>
-                        <button id="clear-filter-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg transition-colors">Limpar</button>
+                    <div>
+                        <label for="start-date" class="block text-sm font-medium text-slate-600 mb-1">De:</label>
+                        <input type="date" id="start-date" class="w-full bg-slate-50 border-slate-300 rounded-lg px-3 py-2 text-slate-700">
+                    </div>
+                    <div>
+                        <label for="end-date" class="block text-sm font-medium text-slate-600 mb-1">Até:</label>
+                        <input type="date" id="end-date" class="w-full bg-slate-50 border-slate-300 rounded-lg px-3 py-2 text-slate-700">
+                    </div>
+                    <div class="flex justify-end gap-3 lg:col-span-4">
+                        <button id="clear-filter-btn" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-4 rounded-lg transition-colors">Limpar</button>
+                        <button id="filter-btn" class="bg-brand-primary hover:bg-brand-primary-dark text-white font-bold py-2 px-6 rounded-lg transition-colors flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd" /></svg>
+                            Filtrar
+                        </button>
                     </div>
                 </div>
             </div>
@@ -140,49 +124,49 @@
             
             <!-- Seção de Gráficos -->
             <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-lg shadow-md lg:col-span-3">
-                    <h2 class="text-xl font-semibold mb-4 text-brand-text">Leads por Situação</h2>
-                    <div class="flex flex-col md:flex-row gap-6 items-center">
-                        <div class="relative h-64 w-64 md:h-72 md:w-72 flex-shrink-0">
-                            <canvas id="statusChart"></canvas>
-                        </div>
-                        <div id="status-chart-legend" class="custom-legend w-full max-h-72 overflow-y-auto pr-2"></div>
+                <!-- CARD ALTERADO: LEADS POR SITUAÇÃO -->
+                <div class="bg-white p-6 rounded-xl shadow-md lg:col-span-3 border-t-4 border-indigo-500">
+                    <h2 class="text-xl font-bold mb-4 text-slate-800">Leads por Situação</h2>
+                    <!-- A altura foi aumentada para acomodar melhor o gráfico de barras -->
+                    <div class="relative h-96">
+                        <canvas id="statusChart"></canvas>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-md lg:col-span-2">
-                    <h2 class="text-xl font-semibold mb-4 text-brand-text">Leads por Indicação</h2>
+                <!-- FIM DA ALTERAÇÃO -->
+                <div class="bg-white p-6 rounded-xl shadow-md lg:col-span-2 border-t-4 border-indigo-500">
+                    <h2 class="text-xl font-bold mb-4 text-slate-800">Leads por Indicação</h2>
                      <div class="relative h-72 w-full mx-auto" style="max-width: 350px;">
                         <canvas id="sourceChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-                <h2 class="text-xl font-semibold mb-4 text-brand-text">Eficácia da Fonte de Leads</h2>
+            <div class="bg-white p-6 rounded-xl shadow-md mb-8 border-t-4 border-indigo-500">
+                <h2 class="text-xl font-bold mb-4 text-slate-800">Eficácia da Fonte de Leads</h2>
                 <div class="relative h-64">
                     <canvas id="sourceConversionChart"></canvas>
                 </div>
             </div>
 
             <!-- Tabela de Leads -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border-t-4 border-indigo-500">
                  <div class="p-4 border-b border-gray-200 flex justify-between items-center">
-                    <h2 class="text-xl font-semibold text-brand-text">Lista de Leads</h2>
+                    <h2 class="text-xl font-bold text-slate-800">Lista de Leads</h2>
                     <span id="table-results-count" class="text-sm text-gray-500"></span>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-slate-100 border-b-2 border-slate-200">
                             <tr>
-                                <th class="p-4 font-semibold text-gray-600">Data</th>
-                                <th class="p-4 font-semibold text-gray-600">Consultor</th>
-                                <th class="p-4 font-semibold text-gray-600">Indicação</th>
-                                <th class="p-4 font-semibold text-gray-600">Situação</th>
-                                <th class="p-4 font-semibold text-gray-600">Contato</th>
-                                <th class="p-4 font-semibold text-gray-600 text-center">Ações</th>
+                                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider text-left">Data</th>
+                                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider text-left">Consultor</th>
+                                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider text-left">Indicação</th>
+                                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider text-left">Situação</th>
+                                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider text-left">Contato</th>
+                                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider text-center">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="leads-table-body" class="divide-y divide-gray-200">
+                        <tbody id="leads-table-body" class="divide-y divide-slate-200">
                         </tbody>
                     </table>
                      <div id="loading-state" class="text-center p-8 text-gray-500">
@@ -513,67 +497,83 @@
                     conversionColor = 'text-yellow-500';
                 }
                 
-                const kpis = [
-                    { type: 'card', label: 'Total de Leads', value: totalLeads, color: 'text-blue-500', filterValue: '' },
-                    { type: 'card', label: 'Em Negociação', value: emNegociacao, color: 'text-yellow-500', filterValue: 'negocia' },
-                    { type: 'card', label: 'Leads Convertidos', value: convertidos, color: 'text-green-500', filterValue: 'fechado' },
-                    { type: 'card', label: 'Leads Perdidos', value: perdidos, color: 'text-red-500', filterValue: 'sem possib' },
-                    { type: 'rate', label: 'Taxa de Conversão', value: `${conversionRate.toFixed(1)}%`, color: conversionColor },
-                    { type: 'cycle', label: 'Ciclo de Vendas (dias)', value: cicloVendasMedio.toFixed(1), color: 'text-cyan-500' },
+                 const kpis = [
+                    { type: 'card', label: 'Total de Leads', value: totalLeads, color: 'text-indigo-600', filterValue: '', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm-9 3a2 2 0 11-4 0 2 2 0 014 0z" /></svg>' },
+                    { type: 'card', label: 'Em Negociação', value: emNegociacao, color: 'text-amber-600', filterValue: 'negocia', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>' },
+                    { type: 'card', label: 'Leads Convertidos', value: convertidos, color: 'text-green-600', filterValue: 'fechado', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' },
+                    { type: 'card', label: 'Leads Perdidos', value: perdidos, color: 'text-red-600', filterValue: 'sem possib', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>' },
+                    { type: 'rate', label: 'Taxa de Conversão', value: `${conversionRate.toFixed(1)}%`, color: conversionColor, icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>' },
+                    { type: 'cycle', label: 'Ciclo de Vendas (dias)', value: cicloVendasMedio.toFixed(1), color: 'text-cyan-600', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' }
                 ];
                 
                 kpiContainer.innerHTML = kpis.map(kpi => {
-                    const baseClasses = "bg-white p-6 rounded-lg shadow-md";
-                    if (kpi.type === 'card') {
-                        return `<div class="${baseClasses} cursor-pointer hover:shadow-lg transition-shadow" data-filter-value="${kpi.filterValue}"><h3 class="text-sm font-medium text-gray-500">${kpi.label}</h3><p class="text-3xl font-bold mt-2 ${kpi.color}">${kpi.value}</p></div>`;
-                    }
-                    return `<div class="${baseClasses}"><h3 class="text-sm font-medium text-gray-500">${kpi.label}</h3><p class="text-3xl font-bold mt-2 ${kpi.color}">${kpi.value}</p></div>`;
-                }).join('');
-            };
-            
-            const generateCustomLegend = (chart) => {
-                const legendContainer = document.getElementById('status-chart-legend');
-                const ul = document.createElement('ul');
-                const legendItems = chart.options.plugins.legend.labels.generateLabels(chart);
+                    const cardClasses = "bg-white p-5 rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-start gap-4";
+                    const cursorClass = kpi.type === 'card' ? 'cursor-pointer' : '';
 
-                legendItems.forEach((item, index) => {
-                    const li = document.createElement('li');
-                    li.onclick = () => {
-                        chart.toggleDataVisibility(index);
-                        li.classList.toggle('hidden-item');
-                        chart.update();
-                    };
-                    const swatch = document.createElement('span');
-                    swatch.className = 'legend-swatch';
-                    swatch.style.backgroundColor = item.fillStyle;
-                    const text = document.createTextNode(item.text);
-                    li.appendChild(swatch);
-                    li.appendChild(text);
-                    ul.appendChild(li);
-                });
-                legendContainer.innerHTML = '';
-                legendContainer.appendChild(ul);
+                    return `<div class="${cardClasses} ${cursorClass}" ${kpi.type === 'card' ? `data-filter-value="${kpi.filterValue}"` : ''}>
+                                <div class="flex-shrink-0">${kpi.icon || ''}</div>
+                                <div>
+                                    <h3 class="text-sm font-medium text-slate-500">${kpi.label}</h3>
+                                    <p class="text-3xl font-bold mt-1 ${kpi.color}">${kpi.value}</p>
+                                </div>
+                            </div>`;
+                }).join('');
             };
 
             const renderCharts = (data) => {
                 const tooltipPercentage = { callbacks: { label: (c) => `${c.label}: ${c.raw.toFixed(1)} (${((c.raw/c.chart.getDatasetMeta(0).total)*100).toFixed(1)}%)` } };
                 
+                // --- GRÁFICO DE SITUAÇÃO (BARRAS HORIZONTAIS) ---
                 const statusCounts = data.reduce((acc, lead) => {
                     const situacao = lead.situacao || 'Não definido';
                     acc[situacao] = (acc[situacao] || 0) + 1;
                     return acc;
                 }, {});
+
+                // Ordena os dados para exibir as situações mais comuns no topo
+                const sortedStatusEntries = Object.entries(statusCounts).sort(([,a],[,b]) => a - b);
+                const sortedLabels = sortedStatusEntries.map(entry => entry[0]);
+                const sortedData = sortedStatusEntries.map(entry => entry[1]);
+
                 const statusData = {
-                    labels: Object.keys(statusCounts),
+                    labels: sortedLabels,
                     datasets: [{
-                        data: Object.values(statusCounts),
-                        backgroundColor: Object.keys(statusCounts).map(s => getStatusChartColor(s)),
-                        borderColor: '#fff', borderWidth: 4
+                        label: 'Total de Leads',
+                        data: sortedData,
+                        backgroundColor: sortedLabels.map(s => getStatusChartColor(s)),
+                        borderRadius: 4
                     }]
                 };
+
                 if(statusChartInstance) statusChartInstance.destroy();
-                statusChartInstance = new Chart(document.getElementById('statusChart'), { type: 'doughnut', data: statusData, options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { display: false }, tooltip: tooltipPercentage } }, plugins: [{ afterDraw: (chart) => { if (chart.options.plugins.legend.display === false) generateCustomLegend(chart); } }]});
+                statusChartInstance = new Chart(document.getElementById('statusChart'), {
+                    type: 'bar',
+                    data: statusData,
+                    options: {
+                        indexAxis: 'y', // <-- Isso cria o gráfico de barras horizontal
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { 
+                                beginAtZero: true,
+                                ticks: { color: '#4b5563', precision: 0 } 
+                            },
+                            y: { 
+                                ticks: { color: '#4b5563' } 
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }, // Legenda é desnecessária com os eixos
+                            tooltip: {
+                                callbacks: {
+                                    label: (c) => ` Leads: ${c.raw}`
+                                }
+                            }
+                        }
+                    }
+                });
                 
+                // --- GRÁFICO DE INDICAÇÃO (PIZZA) ---
                 const sourceCounts = data.reduce((acc, lead) => {
                     const indicacao = lead.indicacao || 'Não definido';
                     acc[indicacao] = (acc[indicacao] || 0) + 1;
@@ -590,6 +590,7 @@
                 if(sourceChartInstance) sourceChartInstance.destroy();
                 sourceChartInstance = new Chart(document.getElementById('sourceChart'), { type: 'pie', data: sourceData, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#4b5563' } }, tooltip: tooltipPercentage } } });
                 
+                // --- GRÁFICO DE EFICÁCIA (BARRAS VERTICAIS) ---
                 const sourceConversionData = {};
                 data.forEach(lead => {
                     const source = lead.indicacao || 'Não definido';
@@ -622,7 +623,7 @@
                     return;
                 }
                 noResultsDiv.classList.add('hidden');
-                tableBody.innerHTML = data.map(lead => `<tr class="hover:bg-gray-50"><td class="p-4">${lead.data}</td><td class="p-4">${lead.consultor}</td><td class="p-4">${lead.indicacao}</td><td class="p-4"><span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(lead.situacao)}">${lead.situacao}</span></td><td class="p-4">${lead.contato}</td><td class="p-4 text-center"><button class="text-brand-primary hover:text-brand-primary-dark" data-action="view" data-id="${lead.id}" title="Ver Observações"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.012 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg></button></td></tr>`).join('');
+                tableBody.innerHTML = data.map(lead => `<tr class="hover:bg-slate-50 transition-colors"><td class="p-4">${lead.data}</td><td class="p-4">${lead.consultor}</td><td class="p-4">${lead.indicacao}</td><td class="p-4"><span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(lead.situacao)}">${lead.situacao}</span></td><td class="p-4">${lead.contato}</td><td class="p-4 text-center"><button class="text-brand-primary hover:text-brand-primary-dark" data-action="view" data-id="${lead.id}" title="Ver Observações"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.012 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg></button></td></tr>`).join('');
             };
             
             const applyFilters = () => {
@@ -722,8 +723,6 @@
             // --- LÓGICA FUNCIONAL PARA O MODAL "AJUDA CONSULTOR" ---
 
             consultantHelperBtn.addEventListener('click', () => {
-                // Adicionando um log para depuração. Pressione F12 no navegador para ver o "Console".
-                console.log("Botão 'Ajuda Consultor' clicado. Tentando abrir o modal.");
                 consultantHelperModal.classList.remove('hidden');
             });
 
