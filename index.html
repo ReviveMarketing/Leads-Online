@@ -3,879 +3,1243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Leads Interativo - Revive</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <title>LEADS INTERNO - REVIVE CRM</title>
     
-    <!-- Bibliotecas para gerar PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
+        body { font-family: 'Outfit', sans-serif; background-color: #F8FAFC; color: #1E293B; }
+        
+        /* Estilo Futurista & Elegante */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 1);
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+            border-radius: 24px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .loader {
-            border: 4px solid #d1d5db;
-            border-top: 4px solid #818cf8; /* brand-primary-light */
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            animation: spin 1.5s linear infinite;
+        .glass-panel:hover {
+            box-shadow: 0 20px 50px -10px rgba(37, 99, 235, 0.1);
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .header-bg {
-            background-color: #6366f1; /* brand-primary */
-            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
-            padding-bottom: 5rem; 
-        }
-    </style>
-    <script>
-        // Customizing Tailwind with your brand colors
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'brand-primary': '#6366f1', // Lilás principal do logo
-                        'brand-primary-light': '#818cf8',
-                        'brand-primary-dark': '#4f46e5',
-                        'brand-secondary': '#f4f4f5', // Um cinza bem claro
-                        'brand-text': '#374151', // Cinza escuro para texto
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-slate-100 text-slate-700">
 
-    <div class="relative">
-        <!-- Header with brand style -->
-        <div class="header-bg relative z-10">
-            <div class="container mx-auto p-4 md:p-8">
-                 <header class="flex flex-wrap justify-between items-center gap-4">
-                    <div>
-                        <h1 class="text-3xl font-bold text-white">ReVive Leads Digitais</h1>
-                        <p class="text-indigo-200">Painel de Análise de Desempenho</p>
-                    </div>
-                     <div class="flex items-center gap-4">
-                        <button id="strategic-analysis-btn" class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors">
-                            ✨ Análise Estratégica
-                        </button>
-                        <button id="consultant-helper-btn" class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors">
-                            ✨ Ajuda Consultor
-                        </button>
-                        <a href="https://revivemarketing.github.io/Tarefas-pendencias/" target="_blank" class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-lg transition-colors">TAREFA</a>
-                         <button id="refresh-btn" class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" /></svg>
-                            Atualizar
-                        </button>
-                    </div>
-                </header>
+        .kanban-col {
+            min-height: 500px;
+            background: #F1F5F9;
+            border-radius: 20px;
+            border: 1px solid #E2E8F0;
+        }
+
+        .card-lead {
+            background: white;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: grab;
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-lead:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.1); 
+            border-color: #BFDBFE;
+        }
+        .card-lead:active { cursor: grabbing; }
+
+        .incomplete-lead {
+            border: 2px solid #EF4444 !important;
+            animation: pulse-red 2s infinite;
+        }
+
+        /* Mapa Real - FULL */
+        .map-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            z-index: 1;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+            border: 1px solid #E2E8F0;
+        }
+        #mapContainer {
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+
+        .btn-future {
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-future:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4); 
+        }
+
+        /* Chat Styles */
+        .chat-bubble {
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            position: relative;
+            max-width: 90%;
+        }
+        .chat-coord {
+            background-color: #EFF6FF;
+            color: #1E40AF;
+            border-bottom-left-radius: 2px;
+            margin-right: auto;
+        }
+        .chat-vendedor {
+            background-color: #F0FDF4;
+            color: #166534;
+            border-bottom-right-radius: 2px;
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        /* Loading & Overlay */
+        .fullscreen-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #F8FAFC; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease;
+        }
+        
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+    </style>
+</head>
+<body>
+
+<div id="app" class="flex h-screen overflow-hidden text-slate-800">
+    
+    <!-- Tela de Login / Sala -->
+    <div v-if="!salaAtual" class="fullscreen-overlay">
+        <div class="glass-panel p-12 text-center max-w-md w-full shadow-2xl relative">
+            <div class="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl flex items-center justify-center text-white font-bold text-4xl mx-auto mb-6 shadow-xl shadow-blue-200">R</div>
+            <h1 class="text-3xl font-extrabold text-slate-800 mb-2 tracking-tight">Revive CRM</h1>
+            <p class="text-slate-500 mb-10 font-medium">Inteligência Comercial & Jurídica</p>
+            
+            <div class="text-left mb-6">
+                <label class="text-xs font-bold text-slate-400 uppercase ml-1 tracking-widest">Acessar Sala</label>
+                <div class="relative mt-2 group">
+                    <i class="fa-solid fa-layer-group absolute left-4 top-3.5 text-slate-400 group-focus-within:text-blue-500 transition"></i>
+                    <input v-model="salaInput" @keyup.enter="entrarSala" type="text" placeholder="NOME DA EQUIPE" class="w-full pl-12 p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition uppercase font-bold text-slate-700 tracking-wide">
+                </div>
+            </div>
+
+            <button @click="entrarSala" :disabled="!salaInput" class="w-full btn-future text-white py-4 rounded-xl font-bold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                Acessar Sistema <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div v-if="toast.show" class="fixed top-6 right-6 z-50 bg-slate-900 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4 transition-all duration-500 transform translate-y-0 border-l-4 border-blue-500">
+        <i :class="toast.icon" class="text-blue-400 text-xl"></i>
+        <span class="font-medium">{{ toast.message }}</span>
+    </div>
+
+    <aside v-if="salaAtual" class="w-72 bg-white border-r border-slate-200 flex flex-col z-20 shadow-xl">
+        <div class="p-8 flex items-center gap-4">
+            <div class="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">R</div>
+            <div>
+                <h1 class="font-bold text-base tracking-widest text-slate-800">REVIVE</h1>
+                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Jurídico</p>
             </div>
         </div>
 
-        <div class="container mx-auto p-4 md:p-8 -mt-20 relative z-20">
-            <!-- Seção de Filtros -->
-            <div class="bg-white p-5 rounded-xl shadow-md mb-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-slate-700">Filtros e Período</h3>
+        <div class="px-6 mb-6">
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sala Conectada</span>
+                    <button @click="sairSala" class="text-xs text-red-400 hover:text-red-600 transition" title="Sair"><i class="fa-solid fa-power-off"></i></button>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                    <div>
-                        <label for="filter-consultor" class="block text-sm font-medium text-slate-600 mb-1">Consultor</label>
-                        <select id="filter-consultor" class="w-full bg-slate-50 border-slate-300 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-primary-light">
-                            <option value="">Todos os Consultores</option>
-                        </select>
+                <div class="font-black text-slate-700 text-lg truncate flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    {{ salaAtual }}
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-2">
+            <a @click="changeView('dashboard')" :class="{'bg-blue-50 text-blue-700 ring-1 ring-blue-100': view === 'dashboard'}" class="flex items-center gap-4 p-3.5 rounded-xl cursor-pointer hover:bg-slate-50 transition group">
+                <i class="fa-solid fa-chart-pie w-5 transition group-hover:scale-110"></i> 
+                <span class="font-semibold text-sm">Dashboard</span>
+            </a>
+            <a @click="changeView('pipeline')" :class="{'bg-blue-50 text-blue-700 ring-1 ring-blue-100': view === 'pipeline'}" class="flex items-center gap-4 p-3.5 rounded-xl cursor-pointer hover:bg-slate-50 transition group">
+                <i class="fa-solid fa-trello w-5 transition group-hover:scale-110"></i> 
+                <span class="font-semibold text-sm">Pipeline</span>
+            </a>
+            <a @click="changeView('mapa')" :class="{'bg-blue-50 text-blue-700 ring-1 ring-blue-100': view === 'mapa'}" class="flex items-center gap-4 p-3.5 rounded-xl cursor-pointer hover:bg-slate-50 transition group">
+                <i class="fa-solid fa-map-location-dot w-5 transition group-hover:scale-110"></i> 
+                <span class="font-semibold text-sm">Geolocalização</span>
+            </a>
+            
+            <!-- Notificações -->
+            <div class="relative">
+                <a @click="showNotifications = !showNotifications" :class="{'bg-blue-50 text-blue-700': showNotifications}" class="flex items-center gap-4 p-3.5 rounded-xl cursor-pointer hover:bg-slate-50 transition group justify-between">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-bell w-5 transition group-hover:scale-110" :class="{'animate-swing text-red-500': unreadNotifications.length > 0}"></i> 
+                        <span class="font-semibold text-sm">Alertas</span>
                     </div>
-                    <div>
-                        <label for="filter-situacao" class="block text-sm font-medium text-slate-600 mb-1">Situação</label>
-                        <select id="filter-situacao" class="w-full bg-slate-50 border-slate-300 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-primary-light">
-                            <option value="">Todas as Situações</option>
-                        </select>
+                    <span v-if="unreadNotifications.length > 0" class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-red-200">
+                        {{ unreadNotifications.length }}
+                    </span>
+                </a>
+                
+                <!-- Dropdown -->
+                <div v-if="showNotifications" class="absolute left-0 top-full mt-2 w-full bg-white rounded-xl shadow-2xl border border-slate-100 overflow-hidden z-50 p-2 space-y-1">
+                    <div v-if="unreadNotifications.length === 0" class="text-center text-slate-400 py-4 text-xs">
+                        Tudo limpo por aqui!
                     </div>
-                    <div>
-                        <label for="start-date" class="block text-sm font-medium text-slate-600 mb-1">De:</label>
-                        <input type="date" id="start-date" class="w-full bg-slate-50 border-slate-300 rounded-lg px-3 py-2 text-slate-700">
-                    </div>
-                    <div>
-                        <label for="end-date" class="block text-sm font-medium text-slate-600 mb-1">Até:</label>
-                        <input type="date" id="end-date" class="w-full bg-slate-50 border-slate-300 rounded-lg px-3 py-2 text-slate-700">
-                    </div>
-                    <div class="flex justify-end gap-3 lg:col-span-4">
-                        <button id="clear-filter-btn" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-4 rounded-lg transition-colors">Limpar</button>
-                        <button id="filter-btn" class="bg-brand-primary hover:bg-brand-primary-dark text-white font-bold py-2 px-6 rounded-lg transition-colors flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd" /></svg>
-                            Filtrar
-                        </button>
+                    <div v-for="notif in unreadNotifications" :key="notif.id" @click="openNotification(notif)" class="p-3 hover:bg-blue-50 rounded-lg cursor-pointer transition border-b border-slate-50 last:border-0">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="font-bold text-xs text-blue-600 truncate w-2/3">{{ notif.nome || 'Lead sem nome' }}</span>
+                            <span class="text-[10px] text-yellow-600 bg-yellow-100 px-1 rounded">Coord</span>
+                        </div>
+                        <p class="text-xs text-slate-500 line-clamp-2 italic">Nova mensagem pendente...</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Seção de Métricas (KPIs) -->
-            <div id="kpi-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <!-- Os cards de KPI serão inseridos aqui pelo JavaScript -->
+            <a @click="changeView('config')" :class="{'bg-blue-50 text-blue-700 ring-1 ring-blue-100': view === 'config'}" class="flex items-center gap-4 p-3.5 rounded-xl cursor-pointer hover:bg-slate-50 transition group mt-auto">
+                <i class="fa-solid fa-users-gear w-5 transition group-hover:scale-110"></i> 
+                <span class="font-semibold text-sm">Equipe</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main v-if="salaAtual" class="flex-1 flex flex-col relative overflow-hidden bg-slate-50/50">
+        
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-10 z-10 sticky top-0">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-800">{{ pageTitle }}</h2>
+                <div class="flex items-center gap-2 mt-0.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                    <p class="text-xs text-slate-400 font-medium">Sistema Operacional</p>
+                </div>
             </div>
             
-            <!-- Seção de Gráficos -->
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
-                <!-- CARD ALTERADO: LEADS POR SITUAÇÃO -->
-                <div class="bg-white p-6 rounded-xl shadow-md lg:col-span-3 border-t-4 border-indigo-500">
-                    <h2 class="text-xl font-bold mb-4 text-slate-800">Leads por Situação</h2>
-                    <!-- A altura foi aumentada para acomodar melhor o gráfico de barras -->
-                    <div class="relative h-96">
-                        <canvas id="statusChart"></canvas>
+            <div class="flex items-center gap-6">
+                <!-- Filtros Data -->
+                <div v-if="view === 'dashboard'" class="hidden md:flex items-center gap-2 bg-white p-1.5 rounded-lg border border-slate-200 shadow-sm">
+                    <div class="flex items-center px-3 gap-2 border-r border-slate-100">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Início</span>
+                        <input type="date" v-model="filterStartDate" class="text-xs font-bold text-slate-600 bg-transparent outline-none cursor-pointer">
                     </div>
-                </div>
-                <!-- FIM DA ALTERAÇÃO -->
-                <div class="bg-white p-6 rounded-xl shadow-md lg:col-span-2 border-t-4 border-indigo-500">
-                    <h2 class="text-xl font-bold mb-4 text-slate-800">Leads por Indicação</h2>
-                     <div class="relative h-72 w-full mx-auto" style="max-width: 350px;">
-                        <canvas id="sourceChart"></canvas>
+                    <div class="flex items-center px-3 gap-2">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Fim</span>
+                        <input type="date" v-model="filterEndDate" class="text-xs font-bold text-slate-600 bg-transparent outline-none cursor-pointer">
                     </div>
+                    <button v-if="filterStartDate || filterEndDate" @click="clearDates" class="px-2 text-slate-400 hover:text-red-500"><i class="fa-solid fa-times"></i></button>
                 </div>
-            </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-md mb-8 border-t-4 border-indigo-500">
-                <h2 class="text-xl font-bold mb-4 text-slate-800">Eficácia da Fonte de Leads</h2>
-                <div class="relative h-64">
-                    <canvas id="sourceConversionChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Tabela de Leads -->
-            <div class="bg-white rounded-xl shadow-md overflow-hidden border-t-4 border-indigo-500">
-                 <div class="p-4 border-b border-gray-200 flex flex-wrap justify-between items-center gap-4">
-                    <div class="flex items-center gap-4">
-                        <h2 class="text-xl font-bold text-slate-800">Lista de Leads</h2>
-                        <span id="table-results-count" class="text-sm text-gray-500"></span>
+                <div class="flex items-center shadow-sm rounded-full">
+                    <div class="relative group">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400 group-focus-within:text-blue-500 transition"></i>
+                        <input 
+                            v-model="searchInput" 
+                            @keyup.enter="executeSearch" 
+                            @input="showSuggestions = true"
+                            type="text" 
+                            placeholder="Buscar por Nome ou Contato..." 
+                            class="pl-10 pr-4 py-3 bg-slate-100 hover:bg-white focus:bg-white border-y border-l border-slate-200 focus:border-blue-300 rounded-l-full text-sm focus:outline-none focus:ring-0 w-64 transition-all"
+                        >
+                        <!-- AUTOCOMPLETE DROPDOWN -->
+                        <div v-if="showSuggestions && searchSuggestions.length > 0" class="absolute top-full left-0 w-[120%] bg-white border border-slate-200 rounded-xl shadow-2xl mt-2 z-50 overflow-hidden max-h-72 overflow-y-auto">
+                            <div class="bg-slate-50 px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">Sugestões Encontradas</div>
+                            <div 
+                                v-for="lead in searchSuggestions" 
+                                :key="lead.id" 
+                                @click="selectSuggestion(lead)"
+                                class="p-3 hover:bg-blue-50 cursor-pointer border-b border-slate-50 last:border-0 flex justify-between items-center transition group/item"
+                            >
+                                <div>
+                                    <p class="font-bold text-slate-700 text-sm group-hover/item:text-blue-600">{{ lead.nome }}</p>
+                                    <p class="text-xs text-slate-400 flex items-center gap-1"><i class="fa-brands fa-whatsapp text-green-500"></i> {{ lead.telefone }}</p>
+                                </div>
+                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500 uppercase group-hover/item:bg-white group-hover/item:shadow-sm">{{ lead.etapa }}</span>
+                            </div>
+                        </div>
                     </div>
-                    <!-- CAMPO DE BUSCA ADICIONADO AQUI -->
-                    <div class="relative">
-                        <input type="text" id="search-contact" placeholder="Buscar por contato..." class="w-full sm:w-64 bg-slate-50 border-slate-300 rounded-lg pl-10 pr-4 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-primary-light">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
+                    <button @click="executeSearch" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-r-full text-sm font-bold border border-blue-600 shadow-md transition hover:shadow-lg flex items-center gap-2">
+                        <i class="fa-solid fa-filter"></i> Carregar
+                    </button>
+                </div>
+                <button @click="openModal()" class="btn-future text-white px-6 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 shadow-lg shadow-blue-200 hover:shadow-blue-300">
+                    <i class="fa-solid fa-plus"></i> Novo Lead
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-auto p-8 relative flex flex-col scroll-smooth">
+
+            <div v-if="view === 'dashboard'" class="space-y-8 animate-fade-in">
+                <!-- KPI Cards - Expandido para 5 colunas -->
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                    <div class="glass-panel p-6 border-l-4 border-blue-500 relative overflow-hidden group">
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Total Leads</p>
+                        <h3 class="text-4xl font-extrabold text-slate-800">{{ filteredDashboardLeads.length }}</h3>
+                    </div>
+                    <div class="glass-panel p-6 border-l-4 border-yellow-500 relative overflow-hidden group">
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Pipeline (Estimado)</p>
+                        <h3 class="text-3xl font-extrabold text-slate-800">{{ formatMoeda(totalEstimado) }}</h3>
+                    </div>
+                    <div class="glass-panel p-6 border-l-4 border-green-500 relative overflow-hidden group">
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Caixa (Realizado)</p>
+                        <h3 class="text-3xl font-extrabold text-green-600">{{ formatMoeda(totalRealizado) }}</h3>
+                    </div>
+                    <div class="glass-panel p-6 border-l-4 border-purple-500 relative overflow-hidden group">
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Ciclo Médio Vendas</p>
+                        <h3 class="text-4xl font-extrabold text-slate-800">{{ cicloMedioVendas }} <span class="text-sm font-medium text-slate-400">dias</span></h3>
+                    </div>
+                    <div class="glass-panel p-6 border-l-4 border-indigo-500 relative overflow-hidden group">
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Conversão Total</p>
+                        <h3 class="text-4xl font-extrabold text-indigo-600">{{ taxaFechamento }}%</h3>
+                        <div class="w-full bg-slate-100 h-1.5 rounded-full mt-3 overflow-hidden">
+                            <div class="bg-indigo-500 h-1.5 rounded-full" :style="{width: taxaFechamento + '%'}"></div>
                         </div>
                     </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-100 border-b-2 border-slate-200">
-                            <tr>
-                                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider text-left">Data</th>
-                                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider text-left">Consultor</th>
-                                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider text-left">Indicação</th>
-                                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider text-left">Situação</th>
-                                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider text-left">Contato</th>
-                                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leads-table-body" class="divide-y divide-slate-200">
-                        </tbody>
-                    </table>
-                     <div id="loading-state" class="text-center p-8 text-gray-500">
-                        <div class="loader mx-auto mb-4"></div>
-                        <p>A carregar dados da planilha...</p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Conversão por Origem -->
+                    <div class="glass-panel p-8 col-span-1 lg:col-span-2">
+                         <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-bold text-lg text-slate-800">Taxa de Conversão por Origem</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left border-collapse">
+                                <thead class="text-xs text-slate-400 font-bold uppercase border-b border-slate-100">
+                                    <tr>
+                                        <th class="px-4 py-3">Origem</th>
+                                        <th class="px-4 py-3">Total Leads</th>
+                                        <th class="px-4 py-3">Fechados</th>
+                                        <th class="px-4 py-3 text-right">Taxa Conv.</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-50">
+                                    <tr v-for="origem in statsPorOrigem" :key="origem.nome" class="hover:bg-blue-50/50 transition duration-200">
+                                        <td class="px-4 py-4 font-bold text-slate-700">{{ origem.nome }}</td>
+                                        <td class="px-4 py-4 text-slate-600">{{ origem.total }}</td>
+                                        <td class="px-4 py-4 text-green-600 font-bold">{{ origem.fechados }}</td>
+                                        <td class="px-4 py-4 text-right">
+                                            <span class="px-2 py-1 rounded-md text-xs font-bold" :class="origem.taxa > 20 ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'">{{ origem.taxa }}%</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                     <div id="no-results" class="text-center p-8 text-gray-500 hidden">
-                        <p>Nenhum lead encontrado com os filtros aplicados.</p>
+                    
+                    <div class="glass-panel p-8 flex flex-col">
+                        <h3 class="font-bold text-lg mb-6 w-full text-left text-slate-800">Distribuição (Origem)</h3>
+                         <div class="relative w-full h-64">
+                             <canvas id="chartOrigem"></canvas>
+                         </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-8">
+                    <h3 class="font-bold text-lg mb-6 text-slate-800">Funil de Etapas</h3>
+                    <div class="h-72 w-full">
+                        <canvas id="chartEtapas"></canvas>
+                    </div>
+                 </div>
+
+                 <!-- Ranking de Consultores -->
+                 <div class="glass-panel p-8 mt-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-lg text-slate-800">Ranking de Performance (Vendedores)</h3>
+                        <span class="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full uppercase">Top Performers</span>
+                    </div>
+                    <div class="overflow-x-auto max-h-80 overflow-y-auto custom-scrollbar">
+                        <table class="w-full text-sm text-left border-collapse">
+                            <thead class="text-xs text-slate-400 font-bold uppercase border-b border-slate-100 sticky top-0 bg-white z-10">
+                                <tr>
+                                    <th class="px-6 py-3">Posição</th>
+                                    <th class="px-6 py-3">Consultor</th>
+                                    <th class="px-6 py-3 text-center">Leads Totais</th>
+                                    <th class="px-6 py-3 text-center">Vendas (Fechados)</th>
+                                    <th class="px-6 py-3 text-right">Conversão Individual</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-50">
+                                <tr v-for="(c, i) in rankingConsultores" :key="c.nome" class="hover:bg-slate-50 transition duration-200">
+                                    <td class="px-6 py-4">
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white shadow-md" 
+                                             :class="i === 0 ? 'bg-yellow-400 ring-2 ring-yellow-200' : (i === 1 ? 'bg-slate-400' : (i === 2 ? 'bg-orange-400' : 'bg-slate-200 text-slate-500'))">
+                                            {{ i + 1 }}
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 font-bold text-slate-700 flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-600 flex items-center justify-center font-bold text-xs uppercase border border-blue-200">
+                                            {{ c.nome.charAt(0) }}
+                                        </div>
+                                        {{ c.nome }}
+                                    </td>
+                                    <td class="px-6 py-4 text-center text-slate-600 font-medium">{{ c.leads }}</td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 font-bold">{{ c.fechados }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <span class="font-bold text-slate-700">{{ c.conversao }}%</span>
+                                            <div class="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                                <div class="h-full bg-blue-500" :style="{width: c.conversao + '%'}"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                 </div>
+
+                 <!-- NOVO: Performance Geográfica (Por Estado) -->
+                 <div class="glass-panel p-8 mt-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-lg text-slate-800">Performance Geográfica (Por Estado)</h3>
+                        <span class="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full uppercase"><i class="fa-solid fa-map-location mr-1"></i> Regional</span>
+                    </div>
+                    <div class="overflow-x-auto max-h-80 overflow-y-auto custom-scrollbar">
+                        <table class="w-full text-sm text-left border-collapse">
+                            <thead class="text-xs text-slate-400 font-bold uppercase border-b border-slate-100 sticky top-0 bg-white z-10">
+                                <tr>
+                                    <th class="px-6 py-3">Estado (UF)</th>
+                                    <th class="px-6 py-3 text-center">Total Leads</th>
+                                    <th class="px-6 py-3 text-center text-orange-500">Em Andamento</th>
+                                    <th class="px-6 py-3 text-center text-green-600">Fechados</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-50">
+                                <tr v-for="(s, index) in statsPorEstado" :key="index" class="hover:bg-slate-50 transition duration-200">
+                                    <td class="px-6 py-4 font-bold text-slate-700">{{ s.estado }}</td>
+                                    <td class="px-6 py-4 text-center text-slate-600 font-medium">{{ s.total }}</td>
+                                    <td class="px-6 py-4 text-center text-orange-500 font-bold">{{ s.andamento }}</td>
+                                    <td class="px-6 py-4 text-center text-green-600 font-bold">{{ s.fechados }}</td>
+                                </tr>
+                                <tr v-if="statsPorEstado.length === 0">
+                                    <td colspan="4" class="px-6 py-8 text-center text-slate-400 italic">Nenhum dado geográfico registrado ainda.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                 </div>
+
+            </div>
+
+            <div v-if="view === 'pipeline'" class="flex gap-6 h-full overflow-x-auto pb-4 px-2">
+                <div v-for="etapa in etapas" :key="etapa" class="min-w-[320px] w-[320px] flex flex-col">
+                    <div class="flex justify-between items-center mb-4 px-1">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full" :class="etapa === 'Recebido (Fechado)' ? 'bg-green-500' : 'bg-blue-500'"></span>
+                            <h3 class="font-bold text-slate-700 uppercase text-xs tracking-wider">{{ etapa }}</h3>
+                        </div>
+                        <span class="bg-white border border-slate-200 text-slate-600 text-xs px-2.5 py-1 rounded-lg font-bold shadow-sm">{{ getLeadsByEtapa(etapa).length }}</span>
+                    </div>
+                    
+                    <div class="kanban-col flex-1 p-3 space-y-4 overflow-y-auto custom-scrollbar" 
+                         @drop="onDrop($event, etapa)" 
+                         @dragover.prevent 
+                         @dragenter.prevent>
+                        
+                        <div v-for="lead in getLeadsByEtapa(etapa)" 
+                             :key="lead.id" 
+                             draggable="true" 
+                             @dragstart="startDrag($event, lead)"
+                             @click="editLead(lead)"
+                             class="card-lead p-5 rounded-2xl shadow-sm border border-slate-100 group"
+                             :class="{'incomplete-lead': isIncomplete(lead)}">
+                            
+                            <div v-if="isIncomplete(lead)" title="Incompleto: Falta Nome" class="absolute -right-2 -top-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-md z-10 font-bold">!</div>
+
+                            <!-- Indicador de msg pendente -->
+                            <div v-if="lead.msgAtiva" class="bg-red-50 text-red-600 text-[10px] p-2 rounded-lg mb-3 border border-red-100 flex items-center justify-between animate-pulse">
+                                <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-comment-dots"></i> Nova mensagem</span>
+                                <span class="text-[9px]">Ver agora</span>
+                            </div>
+
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md uppercase tracking-wide">{{ lead.consultor || 'Livre' }}</span>
+                                <span class="text-[10px] text-slate-400 font-medium">{{ lead.origem || '?' }}</span>
+                            </div>
+                            
+                            <h4 class="font-bold text-slate-800 text-base mb-1 leading-snug group-hover:text-blue-600 transition-colors" :class="{'text-red-500 italic': !lead.nome}">
+                                {{ lead.nome || 'Sem Nome' }}
+                            </h4>
+                            <p class="text-xs text-slate-500 mb-3">{{ lead.campanha || '' }}</p>
+                            
+                            <div class="flex justify-between items-center border-t border-slate-100 pt-3">
+                                <span class="text-sm font-bold text-slate-700">{{ formatMoeda(lead.receitaEstimada) }}</span>
+                                <a :href="'https://wa.me/55'+cleanPhone(lead.telefone)" target="_blank" @click.stop class="text-green-500 hover:text-white hover:bg-green-500 bg-green-50 p-2 rounded-full transition-all duration-300 transform hover:scale-110 shadow-sm">
+                                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <!-- Modals -->
-    <div id="observation-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-2xl transform transition-all">
-            <h2 class="text-2xl font-bold mb-4 text-brand-text">Observações do Lead</h2>
-            <div id="observation-content" class="bg-gray-100 rounded-lg p-4 text-gray-700 whitespace-pre-wrap max-h-48 overflow-y-auto"></div>
+
+            <div v-if="view === 'mapa'" class="flex flex-col flex-1 h-full min-h-[600px]">
+                <div class="glass-panel p-8 flex flex-col flex-1">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="font-bold text-2xl text-slate-800">Mapa de Calor (Geolocalização)</h3>
+                            <p class="text-sm text-slate-500">Distribuição geográfica automática.</p>
+                        </div>
+                        <div class="flex items-center gap-6 text-sm bg-white px-4 py-2 rounded-full border shadow-sm">
+                            <span class="flex items-center gap-2 font-medium text-slate-600"><span class="w-3 h-3 rounded-full bg-green-500 shadow-lg shadow-green-200 inline-block"></span> Fechados</span>
+                            <span class="flex items-center gap-2 font-medium text-slate-600"><span class="w-3 h-3 rounded-full bg-orange-500 shadow-lg shadow-orange-200 inline-block"></span> Em Andamento</span>
+                        </div>
+                    </div>
+                    <div class="flex-1 relative bg-slate-100 rounded-2xl overflow-hidden shadow-inner border border-slate-200 ring-4 ring-white">
+                         <div class="map-wrapper">
+                             <div id="mapContainer"></div>
+                             <div v-if="loadingMap" class="absolute inset-0 flex items-center justify-center text-slate-500 bg-white/80 z-50">
+                                <i class="fa-solid fa-satellite-dish fa-spin mr-2 text-blue-500"></i> Carregando coordenadas...
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
             
-            <div class="mt-4 pt-4 border-t border-gray-200">
-                <div class="flex items-center gap-4 mb-4 flex-wrap">
-                    <button id="summarize-btn" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 text-sm transition-colors">
-                        ✨ Resumir
+            <div v-if="view === 'config'" class="max-w-3xl mx-auto w-full">
+                 <div class="glass-panel p-10">
+                    <h3 class="text-2xl font-bold mb-2 text-slate-800">Gestão de Consultores</h3>
+                    <p class="text-slate-500 mb-8">Adicione ou remova membros da equipe.</p>
+                    
+                    <div class="flex gap-3 mb-8 bg-slate-50 p-2 rounded-xl border border-slate-200 focus-within:ring-2 focus-within:ring-blue-100 transition">
+                        <input v-model="novoConsultor" type="text" placeholder="Nome do novo consultor..." class="flex-1 p-3 bg-transparent outline-none text-slate-700 font-medium">
+                        <button @click="addConsultor" class="bg-blue-600 hover:bg-blue-700 text-white px-6 rounded-lg font-bold transition shadow-lg shadow-blue-200">Adicionar</button>
+                    </div>
+
+                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <li v-for="(nome, index) in listaConsultores" :key="index" class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:border-blue-200 hover:shadow-md transition">
+                            <span class="font-medium text-slate-700">{{ nome }}</span>
+                            <button @click="removeConsultor(index)" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 transition"><i class="fa-solid fa-trash"></i></button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div v-if="showModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden animate-scale-up">
+            
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-800">{{ editingLead ? 'Editar Cliente' : 'Novo Lead' }}</h3>
+                </div>
+                <button @click="closeModal" class="w-10 h-10 rounded-full bg-white hover:bg-red-50 text-slate-400 hover:text-red-500 transition shadow-sm flex items-center justify-center text-lg"><i class="fa-solid fa-times"></i></button>
+            </div>
+
+            <div class="p-8 overflow-y-auto flex-1">
+                <!-- GRID PRINCIPAL (DADOS & GESTÃO) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-8">
+                    <!-- Coluna 1: Dados Pessoais & Origem -->
+                    <div class="space-y-6">
+                        <h4 class="font-bold text-blue-600 text-sm uppercase tracking-widest border-b border-blue-100 pb-2 mb-2 flex items-center gap-2"><i class="fa-regular fa-id-card"></i> Dados & Origem</h4>
+                        
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Telefone <span class="text-red-500">*</span></label>
+                            <input v-model="form.telefone" type="tel" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-500 focus:bg-white outline-none transition font-medium text-slate-700" placeholder="(00) 00000-0000">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Nome Completo</label>
+                            <input v-model="form.nome" type="text" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-500 focus:bg-white outline-none transition font-medium text-slate-700">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Origem</label>
+                                <select v-model="form.origem" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-medium text-slate-700">
+                                    <option value="Meta">Meta</option>
+                                    <option value="Google">Google</option>
+                                    <option value="TikTok">TikTok</option>
+                                    <option value="Indicação">Indicação</option>
+                                    <option value="Outros">Outros</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Campanha</label>
+                                <input v-model="form.campanha" type="text" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-medium text-slate-700">
+                            </div>
+                        </div>
+
+                        <!-- MODIFICADO: Dropdowns de Estado/Cidade -->
+                        <div class="grid grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Estado (UF)</label>
+                                <select v-model="form.estado" @change="carregarCidades(form.estado)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-medium text-slate-700">
+                                    <option value="">Selecione...</option>
+                                    <option v-for="uf in estados" :key="uf.sigla" :value="uf.sigla">{{ uf.nome }}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Cidade</label>
+                                <select v-model="form.cidade" :disabled="!form.estado" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-medium text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <option value="">Selecione...</option>
+                                    <option v-for="cidade in cidadesPorEstado" :key="cidade" :value="cidade">{{ cidade }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                         <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Benefício / Assunto</label>
+                            <input v-model="form.beneficio" type="text" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none transition font-medium text-slate-700">
+                        </div>
+                    </div>
+
+                    <!-- Coluna 2: Gestão, Valores & Observações (RESTAURADO) -->
+                    <div class="space-y-6">
+                        <h4 class="font-bold text-blue-600 text-sm uppercase tracking-widest border-b border-blue-100 pb-2 mb-2 flex items-center gap-2"><i class="fa-solid fa-chart-pie"></i> Gestão & Valores</h4>
+
+                        <div class="grid grid-cols-2 gap-5">
+                             <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Consultor Responsável</label>
+                                <select v-model="form.consultor" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-medium text-slate-700">
+                                    <option value="">Selecione...</option>
+                                    <option v-for="nome in listaConsultores" :value="nome">{{ nome }}</option>
+                                </select>
+                            </div>
+                            <div>
+                                 <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Data Fechamento</label>
+                                 <input v-model="form.dataFechamento" type="date" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-5">
+                            <div>
+                                 <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Estimado (R$)</label>
+                                 <input v-model="form.receitaEstimada" type="number" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-blue-600 font-bold text-lg outline-none">
+                            </div>
+                            <div>
+                                 <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Realizado (R$)</label>
+                                 <input v-model="form.receitaRealizada" type="number" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-green-600 font-bold text-lg outline-none" :disabled="form.etapa !== 'Recebido (Fechado)'">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase">Observações Gerais</label>
+                            <textarea v-model="form.obs" rows="4" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none resize-none text-slate-700" placeholder="Detalhes importantes sobre o lead..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SESSÃO INFERIOR: CHAT (ACESSÍVEL VIA SCROLL) -->
+                <div class="space-y-6 pt-6 border-t border-slate-200">
+                     <h4 class="font-bold text-blue-600 text-sm uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-comments"></i> Central de Mensagens & Histórico</h4>
+                     
+                     <!-- Chat Box Expandido -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 h-64 overflow-y-auto flex flex-col gap-3 custom-scrollbar shadow-inner">
+                        <div v-if="!form.historicoMsg || form.historicoMsg.length === 0" class="flex flex-col items-center justify-center h-full text-slate-400">
+                            <i class="fa-regular fa-comments text-3xl mb-2 opacity-30"></i>
+                            <span class="text-xs">Nenhuma mensagem registrada. Inicie uma conversa abaixo.</span>
+                        </div>
+                        <div v-for="(msg, i) in form.historicoMsg" :key="i" class="chat-bubble" :class="msg.tipo === 'coord' ? 'chat-coord' : (msg.tipo === 'system' ? 'bg-slate-200 text-slate-500 text-center w-full mx-auto text-[10px] uppercase font-bold tracking-wider' : 'chat-vendedor')">
+                            <p class="font-medium">{{ msg.texto }}</p>
+                            <span v-if="msg.tipo !== 'system'" class="text-[9px] opacity-70 block mt-1">{{ new Date(msg.data).toLocaleString() }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Input Areas Lado a Lado -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex gap-2">
+                             <input v-model="novaMsgCoord" placeholder="Enviar alerta como Coordenador..." class="flex-1 p-3 border border-yellow-200 bg-yellow-50 rounded-lg text-sm outline-none focus:ring-2 focus:ring-yellow-400 placeholder-yellow-700/50 text-yellow-900" @keyup.enter="enviarMsg('coord')">
+                             <button @click="enviarMsg('coord')" class="bg-yellow-500 text-white px-4 rounded-lg hover:bg-yellow-600 shadow-md shadow-yellow-200"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <input v-model="novaMsgVendedor" placeholder="Responder como Vendedor..." class="flex-1 p-3 border border-green-200 bg-green-50 rounded-lg text-sm outline-none focus:ring-2 focus:ring-green-400 placeholder-green-700/50 text-green-900" @keyup.enter="enviarMsg('vendedor')">
+                             <button @click="enviarMsg('vendedor')" class="bg-green-600 text-white px-4 rounded-lg hover:bg-green-700 shadow-md shadow-green-200"><i class="fa-solid fa-reply"></i></button>
+                        </div>
+                    </div>
+                    
+                    <button v-if="form.msgAtiva" @click="marcarComoLido" class="w-full py-3 bg-blue-50 border border-blue-100 text-blue-600 rounded-xl text-xs font-bold hover:bg-blue-100 transition shadow-sm">
+                        <i class="fa-solid fa-check-double mr-1"></i> Marcar Alerta como Visualizado/Concluído
                     </button>
-                    <button id="suggest-btn" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 text-sm transition-colors">
-                        ✨ Sugerir Próximo Passo
-                    </button>
-                </div>
-                <div id="gemini-result-container" class="bg-gray-50 rounded-lg p-4 hidden min-h-[80px]">
-                    <div id="gemini-loader" class="hidden mx-auto w-8 h-8">
-                        <div class="loader"></div>
-                    </div>
-                    <div id="gemini-result-content" class="text-gray-700 whitespace-pre-wrap prose"></div>
                 </div>
             </div>
 
-            <div class="flex justify-end mt-6">
-                <button id="close-observation-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg transition-colors">Fechar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="strategic-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-3xl transform transition-all max-h-[90vh] flex flex-col">
-            <h2 class="text-2xl font-bold mb-4 text-brand-text">Análise Estratégica dos Leads</h2>
-            <p class="text-gray-500 mb-4">A IA analisou todos os leads atuais para fornecer os seguintes insights.</p>
-            <div id="strategic-content" class="bg-gray-100 rounded-lg p-4 text-gray-700 whitespace-pre-wrap overflow-y-auto flex-grow">
-                <div id="strategic-loader" class="hidden mx-auto w-8 h-8">
-                    <div class="loader"></div>
-                </div>
-                <div id="strategic-result-content" class="text-gray-700 whitespace-pre-wrap prose"></div>
-            </div>
-            <div class="flex justify-between items-center mt-6">
-                <button id="export-pdf-btn" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
-                    Exportar para PDF
-                </button>
-                <button id="close-strategic-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg transition-colors">Fechar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Ajuda Consultor -->
-    <div id="consultant-helper-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-3xl transform transition-all max-h-[90vh] flex flex-col">
-            <h2 class="text-2xl font-bold mb-2 text-brand-text">Assistente de Vendas IA</h2>
-            <p class="text-gray-500 mb-4">Cole a dúvida ou o cenário do seu cliente abaixo para receber uma sugestão de abordagem.</p>
-            
-            <textarea id="consultant-query-input" class="w-full h-32 bg-gray-50 border border-gray-300 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-primary-light" placeholder="Ex: O cliente acha que o processo do INSS é muito demorado e não vale a pena. O que eu respondo?"></textarea>
-            
-            <div class="my-4">
-                <button id="get-suggestion-btn" class="bg-brand-primary hover:bg-brand-primary-dark text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors">
-                    Gerar Sugestão
+            <div class="p-6 border-t border-slate-100 bg-slate-50 flex justify-between items-center">
+                <button v-if="editingLead" @click="deleteLead" class="text-red-500 font-bold hover:bg-red-50 px-6 py-3 rounded-xl transition flex items-center gap-2"><i class="fa-solid fa-trash"></i> Excluir</button>
+                <div v-else></div>
+                <button @click="saveLead" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-10 py-3 rounded-xl font-bold shadow-lg shadow-blue-200 transition transform hover:-translate-y-1 flex items-center gap-2">
+                    <i class="fa-solid fa-save"></i> Salvar Lead
                 </button>
             </div>
-
-            <div id="consultant-helper-content" class="bg-gray-100 rounded-lg p-4 text-gray-700 whitespace-pre-wrap overflow-y-auto flex-grow min-h-[150px]">
-                <div id="consultant-helper-loader" class="hidden mx-auto w-8 h-8">
-                    <div class="loader"></div>
-                </div>
-                <div id="consultant-helper-result-content" class="text-gray-700 whitespace-pre-wrap prose"></div>
-            </div>
-
-            <div class="flex justify-end mt-6">
-                <button id="close-consultant-helper-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg transition-colors">Fechar</button>
-            </div>
         </div>
     </div>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- CONFIGURAÇÕES DAS APIS ---
-            const GOOGLE_SHEETS_API_KEY = 'AIzaSyAx8GJ2p-HNzwJwPljcgKS0QDNmJuy7NZE';
-            const SPREADSHEET_ID = '15G9YGn6BJ89bpx6MkZBhOiRiwiSPOX3qZ4A8SQvf1Wg';
-            const SHEET_NAMES = ['SETEMBRO', 'OUTUBRO', 'NOVEMBRO']; 
-            const RANGE_ADDRESS = 'A2:H';
-            
-            const GEMINI_API_KEY = "AIzaSyDnC4JnBhmgtwhdLBNWSzaJdoI7mtcQkjo"; 
+<!-- Módulos Firebase e Aplicação -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-            let leads = []; 
-            let currentLeadInView = null;
+    // Cache Estático de Capitais e Estados para carga instantânea
+    const STATIC_COORDS = {
+        "SP": [-23.5505, -46.6333], "SAO PAULO": [-23.5505, -46.6333],
+        "RJ": [-22.9068, -43.1729], "RIO DE JANEIRO": [-22.9068, -43.1729],
+        "MG": [-19.9167, -43.9345], "MINAS GERAIS": [-19.9167, -43.9345],
+        "ES": [-20.3155, -40.3128], "ESPIRITO SANTO": [-20.3155, -40.3128],
+        "RS": [-30.0346, -51.2177], "RIO GRANDE DO SUL": [-30.0346, -51.2177],
+        "SC": [-27.5954, -48.5480], "SANTA CATARINA": [-27.5954, -48.5480],
+        "PR": [-25.4284, -49.2733], "PARANA": [-25.4284, -49.2733],
+        "BA": [-12.9777, -38.5016], "BAHIA": [-12.9777, -38.5016],
+        "PE": [-8.0476, -34.8770], "PERNAMBUCO": [-8.0476, -34.8770],
+        "CE": [-3.7172, -38.5434], "CEARA": [-3.7172, -38.5434],
+        "DF": [-15.7975, -47.8919], "DISTRITO FEDERAL": [-15.7975, -47.8919],
+        "GO": [-16.6869, -49.2648], "GOIAS": [-16.6869, -49.2648],
+        "AM": [-3.1190, -60.0217], "AMAZONAS": [-3.1190, -60.0217],
+        "MT": [-15.6014, -56.0979], "MATO GROSSO": [-15.6014, -56.0979],
+        "MS": [-20.4697, -54.6201], "MATO GROSSO DO SUL": [-20.4697, -54.6201]
+    };
 
-            // --- ELEMENTOS DO DOM ---
-            const tableBody = document.getElementById('leads-table-body');
-            const kpiContainer = document.getElementById('kpi-container');
-            const filterConsultor = document.getElementById('filter-consultor');
-            const filterSituacao = document.getElementById('filter-situacao');
-            const startDateInput = document.getElementById('start-date');
-            const endDateInput = document.getElementById('end-date');
-            const filterBtn = document.getElementById('filter-btn');
-            const clearFilterBtn = document.getElementById('clear-filter-btn');
-            const noResultsDiv = document.getElementById('no-results');
-            const loadingStateDiv = document.getElementById('loading-state');
-            const tableResultsCount = document.getElementById('table-results-count');
-            const refreshBtn = document.getElementById('refresh-btn');
-            const searchContactInput = document.getElementById('search-contact'); // NOVO ELEMENTO
-            
-            // Modal de Observação
-            const observationModal = document.getElementById('observation-modal');
-            const observationContent = document.getElementById('observation-content');
-            const closeObservationBtn = document.getElementById('close-observation-btn');
-            const summarizeBtn = document.getElementById('summarize-btn');
-            const suggestBtn = document.getElementById('suggest-btn');
-            const geminiResultContainer = document.getElementById('gemini-result-container');
-            const geminiLoader = document.getElementById('gemini-loader');
-            const geminiResultContent = document.getElementById('gemini-result-content');
+    const USER_FIREBASE_CONFIG = {
+        apiKey: "AIzaSyC0rXC6dYNhRzth6aa_5qcmavy0Q8wS0nA",
+        authDomain: "crm-revive.firebaseapp.com",
+        projectId: "crm-revive",
+        storageBucket: "crm-revive.firebasestorage.app",
+        messagingSenderId: "159299012557",
+        appId: "1:159299012557:web:355a966f272c0191d8e684",
+        measurementId: "G-LVVTP722EM"
+    };
 
-            // Modal de Análise Estratégica
-            const strategicModal = document.getElementById('strategic-modal');
-            const closeStrategicBtn = document.getElementById('close-strategic-btn');
-            const strategicAnalysisBtn = document.getElementById('strategic-analysis-btn');
-            const strategicLoader = document.getElementById('strategic-loader');
-            const strategicResultContent = document.getElementById('strategic-result-content');
-            const exportPdfBtn = document.getElementById('export-pdf-btn');
+    let app, auth, db;
+    const { createApp } = Vue;
 
-            // Modal de Ajuda ao Consultor
-            const consultantHelperBtn = document.getElementById('consultant-helper-btn');
-            const consultantHelperModal = document.getElementById('consultant-helper-modal');
-            const closeConsultantHelperBtn = document.getElementById('close-consultant-helper-btn');
-            const getSuggestionBtn = document.getElementById('get-suggestion-btn');
-            const consultantQueryInput = document.getElementById('consultant-query-input');
-            const consultantHelperContent = document.getElementById('consultant-helper-content');
-            const consultantHelperLoader = document.getElementById('consultant-helper-loader');
-            const consultantHelperResultContent = document.getElementById('consultant-helper-result-content');
-
-
-            // Gráficos
-            let statusChartInstance, sourceChartInstance, sourceConversionChartInstance;
-
-            // --- FUNÇÕES ---
-            const callGeminiAPI = async (prompt, resultContainer, loaderElement, contentElement) => {
-                if (!GEMINI_API_KEY) {
-                    contentElement.textContent = 'Erro: A chave da API Gemini não foi configurada.';
-                    return;
-                }
-                resultContainer.classList.remove('hidden');
-                loaderElement.classList.remove('hidden');
-                contentElement.innerHTML = '';
-
-                const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+    createApp({
+        data() {
+            return {
+                view: 'dashboard',
+                salaInput: '',
+                salaAtual: localStorage.getItem('revive_sala_atual') || '', 
+                dbConnected: false,
+                errorMessage: '',
+                searchQuery: '',
+                searchInput: '',
+                showSuggestions: false, // Controle do dropdown
+                filterStartDate: '',
+                filterEndDate: '',
+                showNotifications: false,
+                loadingMap: false,
                 
-                const payload = { contents: [{ parts: [{ text: prompt }] }] };
-                try {
-                    const response = await fetch(GEMINI_API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error?.message || 'A resposta da API não foi bem-sucedida.');
-                    }
-                    const data = await response.json();
-                    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (text) {
-                        contentElement.innerHTML = marked.parse(text);
-                    } else {
-                        const blockReason = data.candidates?.[0]?.finishReason;
-                        if (blockReason && blockReason !== "STOP") {
-                           throw new Error(`A resposta foi bloqueada. Motivo: ${blockReason}. Verifique as configurações de segurança da sua chave de API.`);
-                        } else {
-                           throw new Error('Não foi possível extrair o texto da resposta da API.');
-                        }
-                    }
-                } catch (error) {
-                    console.error("Erro ao chamar a API Gemini:", error);
-                    contentElement.textContent = `Ocorreu um erro: ${error.message}`;
-                } finally {
-                    loaderElement.classList.add('hidden');
+                showModal: false,
+                editingLead: null,
+                leads: [],
+                allLeads: [],
+                listaConsultores: ['João', 'Maria', 'Pedro'], 
+                novoConsultor: '',
+                // MODIFICADO: Etapas separadas
+                etapas: ['Primeiro Contato', 'Cadastro', 'Negociação', 'Processo em Andamento', 'Aguardando Resultado', 'Recebido (Fechado)', 'Sem Resposta', 'Perdido/Sem Possibilidade'],
+                
+                form: {
+                    id: null, nome: '', telefone: '', beneficio: '', condicao: '',
+                    cidade: '', estado: '', obs: '', consultor: '',
+                    origem: 'Meta', campanha: '',
+                    receitaEstimada: 0, receitaRealizada: 0,
+                    etapa: 'Primeiro Contato', 
+                    historicoMsg: [], // Array de objetos {tipo, texto, data}
+                    msgAtiva: false, // Flag para notificação
+                    dataFechamento: ''
+                },
+                novaMsgCoord: '',
+                novaMsgVendedor: '',
+
+                // Locais (IBGE)
+                estados: [],
+                cidadesPorEstado: [],
+
+                toast: { show: false, message: '', icon: '' },
+                cityCache: {...STATIC_COORDS}
+            }
+        },
+        created() {
+            this.mapInstance = null;
+            this.charts = {};
+            this.carregarEstados();
+        },
+        mounted() {
+            this.retryConnection();
+            const saved = localStorage.getItem('revive_consultores');
+            if(saved) this.listaConsultores = JSON.parse(saved);
+        },
+        computed: {
+            pageTitle() {
+                const titles = {dashboard: 'Dashboard Executivo', pipeline: 'Pipeline de Vendas', mapa: 'Inteligência Geográfica', config: 'Configurações'};
+                return titles[this.view] || 'Revive CRM';
+            },
+            searchSuggestions() {
+                if (!this.searchInput || this.searchInput.length < 2) return [];
+                const term = this.searchInput.toLowerCase();
+                return this.leads.filter(l => 
+                    (l.nome && l.nome.toLowerCase().includes(term)) || 
+                    (l.telefone && l.telefone.includes(term))
+                ).slice(0, 5); // Limita a 5 sugestões
+            },
+            filteredLeads() {
+                let result = this.leads;
+                if (this.searchQuery) {
+                    const term = this.searchQuery.toLowerCase();
+                    result = result.filter(l => 
+                        (l.nome && l.nome.toLowerCase().includes(term)) || 
+                        (l.telefone && l.telefone.includes(term))
+                    );
                 }
-            };
-            
-            const parseDate = (dateString) => {
-                if (!dateString || !/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) return null;
-                const [day, month, year] = dateString.split('/');
-                return new Date(year, month - 1, day);
-            };
-            
-            const fetchSheetData = async () => {
-                loadingStateDiv.classList.remove('hidden');
-                tableBody.innerHTML = '';
-                noResultsDiv.classList.add('hidden');
-                try {
-                    const urls = SHEET_NAMES.map(sheetName => {
-                        const fullRange = `'${sheetName}'!${RANGE_ADDRESS}`;
-                        return `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(fullRange)}?key=${GOOGLE_SHEETS_API_KEY}`;
-                    });
-                    const responses = await Promise.all(urls.map(url => fetch(url)));
-                    for (const response of responses) {
-                        if (!response.ok) {
-                            const errorData = await response.json();
-                            const errorMessage = errorData.error?.message || `Erro na API: ${response.status} ${response.statusText}`;
-                            throw new Error(errorMessage);
-                        }
-                    }
-                    const jsonPromises = responses.map(response => response.json());
-                    const results = await Promise.all(jsonPromises);
-                    const sheetValues = results.flatMap(data => data.values || []);
-
-                    if (sheetValues.length === 0) {
-                        leads = [];
-                        updateDashboard(leads);
-                        return;
-                    }
-
-                    leads = sheetValues.map((row, index) => ({
-                        id: index + 1,
-                        data: row[0] || '',
-                        consultor: (row[1] || '').trim().toUpperCase(),
-                        indicacao: row[2] || '',
-                        situacao: row[4] || 'Não definido',
-                        contato: row[5] || '',
-                        observacao: row[6] || '',
-                        dataFechamento: row[7] || '',
-                        dateObject: parseDate(row[0]),
-                        dateObjectFechamento: parseDate(row[7])
-                    }))
-                    .filter(lead => lead.consultor && lead.dateObject) 
-                    .sort((a, b) => b.dateObject - a.dateObject); 
-
-                    populateConsultantFilter(leads);
-                    populateSituationFilter(leads);
-
-                } catch (error) {
-                    console.error("Falha ao buscar dados da planilha:", error);
-                    loadingStateDiv.innerHTML = `<p class="text-red-500">Erro ao carregar dados: ${error.message}. <br>Verifique se a Chave de API é válida, se a API do Google Sheets está ativa e se as planilhas estão partilhadas publicamente.</p>`;
-                } finally {
-                     loadingStateDiv.classList.add('hidden');
+                return result;
+            },
+            filteredDashboardLeads() {
+                let result = this.leads;
+                if (this.filterStartDate) {
+                    result = result.filter(l => (l.dataCriacao || '').slice(0,10) >= this.filterStartDate);
                 }
-            };
-
-            const populateConsultantFilter = (data) => {
-                const consultants = [...new Set(data.map(lead => lead.consultor))];
-                filterConsultor.innerHTML = '<option value="">Todos os Consultores</option>';
-                consultants.sort().forEach(c => {
-                    const option = document.createElement('option');
-                    option.value = c;
-                    option.textContent = c;
-                    filterConsultor.appendChild(option);
+                if (this.filterEndDate) {
+                    result = result.filter(l => (l.dataCriacao || '').slice(0,10) <= this.filterEndDate);
+                }
+                return result;
+            },
+            unreadNotifications() {
+                return this.leads.filter(l => l.msgAtiva);
+            },
+            totalEstimado() { return this.filteredDashboardLeads.reduce((acc, l) => acc + (Number(l.receitaEstimada) || 0), 0); },
+            totalRealizado() { 
+                return this.filteredDashboardLeads.filter(l => l.etapa === 'Recebido (Fechado)').reduce((acc, l) => acc + (Number(l.receitaRealizada) || 0), 0); 
+            },
+            taxaFechamento() {
+                const base = this.filteredDashboardLeads;
+                const fechados = base.filter(l => l.etapa === 'Recebido (Fechado)').length;
+                return base.length ? ((fechados / base.length) * 100).toFixed(1) : 0;
+            },
+            cicloMedioVendas() {
+                const fechados = this.filteredDashboardLeads.filter(l => l.etapa === 'Recebido (Fechado)' && l.dataFechamento && l.dataCriacao);
+                if (fechados.length === 0) return 0;
+                
+                const totalDias = fechados.reduce((acc, l) => {
+                    const start = new Date(l.dataCriacao);
+                    const end = new Date(l.dataFechamento);
+                    const diffTime = Math.abs(end - start);
+                    return acc + Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                }, 0);
+                
+                return (totalDias / fechados.length).toFixed(0);
+            },
+            statsPorOrigem() {
+                const map = {};
+                this.filteredDashboardLeads.forEach(l => {
+                    const o = l.origem || 'Outros';
+                    if(!map[o]) map[o] = { nome: o, total: 0, fechados: 0 };
+                    map[o].total++;
+                    if(l.etapa === 'Recebido (Fechado)') map[o].fechados++;
                 });
-            };
-            
-            const populateSituationFilter = (data) => {
-                const situations = [...new Set(data.map(lead => lead.situacao))];
-                filterSituacao.innerHTML = '<option value="">Todas as Situações</option>';
-                situations.sort().forEach(sit => {
-                    const option = document.createElement('option');
-                    option.value = sit;
-                    option.textContent = sit;
-                    filterSituacao.appendChild(option);
+                return Object.values(map).map(item => {
+                    item.taxa = item.total ? ((item.fechados / item.total) * 100).toFixed(1) : 0;
+                    return item;
+                }).sort((a,b) => b.fechados - a.fechados);
+            },
+            rankingConsultores() {
+                const ranking = {};
+                this.listaConsultores.forEach(c => ranking[c] = { nome: c, leads: 0, fechados: 0, conversao: 0 });
+                // Usa a lista filtrada por data para o ranking também
+                this.filteredDashboardLeads.forEach(l => {
+                    if (l.consultor && ranking[l.consultor]) {
+                        ranking[l.consultor].leads++;
+                        if (l.etapa === 'Recebido (Fechado)') ranking[l.consultor].fechados++;
+                    }
                 });
-            };
-
-            const getStatusColor = (status) => {
-                const lowerStatus = (status || '').toLowerCase().trim();
-                switch (lowerStatus) {
-                    case 'negociação': return 'bg-pink-500 text-white';
-                    case 'fechado': return 'bg-green-600 text-white';
-                    case 'sem possibilidade': return 'bg-red-600 text-white';
-                    case 'duvida': return 'bg-blue-400 text-gray-900';
-                    case 'letalk - negociação': return 'bg-purple-500 text-white';
-                    case 'letalk - sem possibilidade': return 'bg-red-400 text-gray-900';
-                    case 'letalk - fechado': return 'bg-green-400 text-gray-900';
-                    case 'letalk - duvida': return 'bg-sky-400 text-gray-900';
-                    case 'letalk': return 'bg-yellow-400 text-gray-900';
-                    case 'aguardando resposta': return 'bg-gray-500 text-white';
-                    default:
-                        if (lowerStatus.includes('negocia')) return 'bg-yellow-500 text-gray-900';
-                        if (lowerStatus.includes('sem possib')) return 'bg-red-500 text-white';
-                        if (lowerStatus.includes('fechado')) return 'bg-green-500 text-white';
-                        return 'bg-gray-600 text-white';
+                return Object.values(ranking).map(r => {
+                    r.conversao = r.leads ? ((r.fechados / r.leads) * 100).toFixed(0) : 0;
+                    return r;
+                }).sort((a, b) => b.fechados - a.fechados);
+            },
+            // NOVO COMPUTED: Stats por Estado
+            statsPorEstado() {
+                const map = {};
+                this.filteredDashboardLeads.forEach(l => {
+                    const uf = l.estado || 'N/A';
+                    if(!map[uf]) map[uf] = { estado: uf, total: 0, fechados: 0, andamento: 0 };
+                    
+                    map[uf].total++;
+                    if(l.etapa === 'Recebido (Fechado)') {
+                        map[uf].fechados++;
+                    // MODIFICADO: Excluir novos status de perda da contagem "Em Andamento"
+                    } else if (l.etapa !== 'Sem Resposta' && l.etapa !== 'Perdido/Sem Possibilidade' && l.etapa !== 'Sem Resposta / Perdido') {
+                        map[uf].andamento++;
+                    }
+                });
+                return Object.values(map).sort((a, b) => b.total - a.total);
+            }
+        },
+        methods: {
+            entrarSala() {
+                if(!this.salaInput) return;
+                this.salaAtual = this.salaInput.toUpperCase().trim();
+                localStorage.setItem('revive_sala_atual', this.salaAtual);
+                this.updateLeadsByRoom();
+            },
+            sairSala() {
+                this.salaAtual = '';
+                localStorage.removeItem('revive_sala_atual');
+                this.leads = [];
+                if(this.mapInstance) { this.mapInstance.remove(); this.mapInstance = null; }
+            },
+            showToast(msg, icon='fa-check-circle') {
+                this.toast = { show: true, message: msg, icon: icon };
+                setTimeout(() => this.toast.show = false, 3000);
+            },
+            clearDates() {
+                this.filterStartDate = ''; this.filterEndDate = '';
+                this.updateCharts();
+            },
+            executeSearch() {
+                this.searchQuery = this.searchInput;
+                this.showSuggestions = false;
+                if(this.searchInput) {
+                    this.showToast('Buscando...', 'fa-search');
+                } else {
+                    this.showToast('Filtro limpo', 'fa-rotate-left');
                 }
-            };
+            },
+            // SELEÇÃO DE SUGESTÃO
+            selectSuggestion(lead) {
+                this.editLead(lead);
+                this.showSuggestions = false;
+                // Opcional: Limpar busca ou manter
+                this.searchInput = '';
+            },
+            openNotification(lead) {
+                this.showNotifications = false;
+                this.editLead(lead);
+            },
+            // FUNÇÕES DE CHAT DO COORDENADOR
+            enviarMsg(tipo) {
+                const texto = tipo === 'coord' ? this.novaMsgCoord : this.novaMsgVendedor;
+                if(!texto) return;
+
+                if(!this.form.historicoMsg) this.form.historicoMsg = [];
+                
+                this.form.historicoMsg.push({
+                    tipo: tipo,
+                    texto: texto,
+                    data: new Date().toISOString()
+                });
+
+                if(tipo === 'coord') {
+                    this.form.msgAtiva = true; // Ativa notificação
+                    this.novaMsgCoord = '';
+                } else {
+                    this.novaMsgVendedor = '';
+                }
+            },
+            marcarComoLido() {
+                this.form.msgAtiva = false; // Remove notificação
+                // Adiciona log de visualização
+                if(!this.form.historicoMsg) this.form.historicoMsg = [];
+                this.form.historicoMsg.push({
+                    tipo: 'system',
+                    texto: '--- Visualizado/Concluído pelo Vendedor ---',
+                    data: new Date().toISOString()
+                });
+            },
+
+            // --- FUNÇÕES IBGE ---
+            async carregarEstados() {
+                try {
+                    const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
+                    const data = await res.json();
+                    this.estados = data.map(uf => ({ sigla: uf.sigla, nome: uf.nome }));
+                } catch(e) { console.error("Erro IBGE UF", e); }
+            },
+            async carregarCidades(uf) {
+                if(!uf) { this.cidadesPorEstado = []; return; }
+                try {
+                    const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
+                    const data = await res.json();
+                    this.cidadesPorEstado = data.map(c => c.nome);
+                } catch(e) { console.error("Erro IBGE Cidade", e); }
+            },
+
+            async retryConnection() {
+                const config = USER_FIREBASE_CONFIG;
+                try {
+                    try { app = initializeApp(config); } catch(e) { } 
+                    auth = getAuth(app);
+                    db = getFirestore(app);
+                    await signInAnonymously(auth);
+                    onAuthStateChanged(auth, (user) => {
+                        if (user) this.connectDB();
+                    });
+                } catch(e) { console.error(e); }
+            },
+
+            connectDB() {
+                const leadsRef = collection(db, 'leads');
+                onSnapshot(leadsRef, (snapshot) => {
+                    this.dbConnected = true;
+                    this.allLeads = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                    this.updateLeadsByRoom();
+                    if(this.view === 'dashboard') this.updateCharts();
+                    if(this.view === 'mapa') setTimeout(() => this.initMap(), 500);
+                });
+            },
+
+            updateLeadsByRoom() {
+                if(this.salaAtual) this.leads = this.allLeads.filter(lead => lead.sala === this.salaAtual);
+                else this.leads = [];
+            },
+
+            async changeView(newView) {
+                this.view = newView;
+                await this.$nextTick();
+                if(newView === 'dashboard') this.updateCharts();
+                if(newView === 'mapa') setTimeout(() => this.initMap(), 300); 
+            },
             
-            const getStatusChartColor = (status) => {
-                const lowerStatus = (status || '').toLowerCase().trim();
-                switch (lowerStatus) {
-                    case 'negociação': return '#ec4899';
-                    case 'fechado': return '#16a34a';
-                    case 'sem possibilidade': return '#dc2626';
-                    case 'duvida': return '#60a5fa';
-                    case 'letalk - negociação': return '#a855f7';
-                    case 'letalk - sem possibilidade': return '#f87171';
-                    case 'letalk - fechado': return '#4ade80';
-                    case 'letalk - duvida': return '#38bdf8';
-                    case 'letalk': return '#facc15';
-                    case 'aguardando resposta': return '#6b7280';
-                    default: return '#4b5563';
+            getLeadsByEtapa(etapa) { return this.filteredLeads.filter(l => l.etapa === etapa); },
+            isIncomplete(lead) { return lead.telefone && !lead.nome; },
+            cleanPhone(phone) { return phone ? phone.replace(/\D/g,'') : ''; },
+            formatMoeda(val) { return Number(val).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}); },
+            
+            async initMap() {
+                const container = document.getElementById('mapContainer');
+                if(!container) return;
+                
+                if (this.mapInstance) {
+                    this.mapInstance.remove();
+                    this.mapInstance = null;
                 }
-            };
+                
+                this.mapInstance = L.map('mapContainer').setView([-14.2350, -51.9253], 4);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.mapInstance);
+                
+                this.loadingMap = true;
 
-            const renderKpis = (data) => {
-                const totalLeads = data.length;
-                const emNegociacao = data.filter(l => (l.situacao || '').toLowerCase().includes('negocia')).length;
-                const convertidos = data.filter(l => (l.situacao || '').toLowerCase().includes('fechado')).length;
-                const perdidos = data.filter(l => (l.situacao || '').toLowerCase().includes('sem possib')).length;
+                const cityGroups = {};
                 
-                const conversionRate = totalLeads > 0 ? (convertidos / totalLeads) * 100 : 0;
-                
-                const leadsFechadosComData = data.filter(l => (l.situacao || '').toLowerCase().includes('fechado') && l.dateObject && l.dateObjectFechamento);
-                let cicloVendasMedio = 0;
-                if (leadsFechadosComData.length > 0) {
-                    const totalDias = leadsFechadosComData.reduce((acc, lead) => {
-                        const diffTime = Math.abs(lead.dateObjectFechamento - lead.dateObject);
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        return acc + (diffDays > 0 ? diffDays : 1);
-                    }, 0);
-                    cicloVendasMedio = totalDias / leadsFechadosComData.length;
-                }
-                
-                let conversionColor = 'text-red-500';
-                if (conversionRate >= 6) {
-                    conversionColor = 'text-green-500';
-                } else if (conversionRate >= 5) {
-                    conversionColor = 'text-yellow-500';
-                }
-                
-                 const kpis = [
-                    { type: 'card', label: 'Total de Leads', value: totalLeads, color: 'text-indigo-600', filterValue: '', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm-9 3a2 2 0 11-4 0 2 2 0 014 0z" /></svg>' },
-                    { type: 'card', label: 'Em Negociação', value: emNegociacao, color: 'text-amber-600', filterValue: 'negocia', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>' },
-                    { type: 'card', label: 'Leads Convertidos', value: convertidos, color: 'text-green-600', filterValue: 'fechado', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' },
-                    { type: 'card', label: 'Leads Perdidos', value: perdidos, color: 'text-red-600', filterValue: 'sem possib', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>' },
-                    { type: 'rate', label: 'Taxa de Conversão', value: `${conversionRate.toFixed(1)}%`, color: conversionColor, icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>' },
-                    { type: 'cycle', label: 'Ciclo de Vendas (dias)', value: cicloVendasMedio.toFixed(1), color: 'text-cyan-600', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' }
-                ];
-                
-                kpiContainer.innerHTML = kpis.map(kpi => {
-                    const cardClasses = "bg-white p-5 rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-start gap-4";
-                    const cursorClass = kpi.type === 'card' ? 'cursor-pointer' : '';
+                // Agrupamento mais preciso (Cidade + Estado)
+                this.leads.forEach(lead => {
+                    if(lead.cidade || lead.estado) {
+                        // Prioriza a cidade se existir, senão usa o estado
+                        // Remove espaços extras para garantir chave única
+                        const cidadeLimpa = lead.cidade ? lead.cidade.trim() : '';
+                        const estadoLimpo = lead.estado ? lead.estado.trim().toUpperCase() : '';
+                        
+                        let key = cidadeLimpa ? `${cidadeLimpa}-${estadoLimpo}` : estadoLimpo;
+                        let query = cidadeLimpa ? `${cidadeLimpa}, ${estadoLimpo}, Brasil` : `${estadoLimpo}, Brasil`;
 
-                    return `<div class="${cardClasses} ${cursorClass}" ${kpi.type === 'card' ? `data-filter-value="${kpi.filterValue}"` : ''}>
-                                <div class="flex-shrink-0">${kpi.icon || ''}</div>
-                                <div>
-                                    <h3 class="text-sm font-medium text-slate-500">${kpi.label}</h3>
-                                    <p class="text-3xl font-bold mt-1 ${kpi.color}">${kpi.value}</p>
+                        if(!cityGroups[key]) cityGroups[key] = { leads: [], fullQuery: query };
+                        cityGroups[key].leads.push(lead);
+                    }
+                });
+
+                for (const [key, data] of Object.entries(cityGroups)) {
+                    // Tenta cache exato primeiro
+                    let coords = this.cityCache[key];
+                    
+                    // Fallback para API
+                    if (!coords) {
+                        try {
+                            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(data.fullQuery)}&limit=1`);
+                            const apiData = await response.json();
+                            if(apiData && apiData.length > 0) {
+                                coords = [parseFloat(apiData[0].lat), parseFloat(apiData[0].lon)];
+                                this.cityCache[key] = coords; 
+                            }
+                        } catch(e) { console.log('Erro geocoding', e); }
+                    }
+
+                    if (coords) {
+                        // Plota cada lead individualmente com Jitter (leve deslocamento)
+                        data.leads.forEach(lead => {
+                            const isClosed = lead.etapa === 'Recebido (Fechado)';
+                            const color = isClosed ? '#22C55E' : '#F97316'; 
+                            
+                            // Adiciona um pequeno "jitter" (deslocamento aleatório) para evitar sobreposição exata
+                            // Aprox 500m-1km de variação
+                            const latJitter = coords[0] + (Math.random() - 0.5) * 0.008;
+                            const lngJitter = coords[1] + (Math.random() - 0.5) * 0.008;
+
+                            L.circleMarker([latJitter, lngJitter], { 
+                                radius: 8, 
+                                fillColor: color, 
+                                color: '#fff', 
+                                weight: 2, 
+                                opacity: 1, 
+                                fillOpacity: 0.9 
+                            })
+                             .addTo(this.mapInstance)
+                             .bindPopup(`
+                                <div class="text-center">
+                                    <strong class="text-sm block mb-1">${lead.nome || 'Lead'}</strong>
+                                    <span class="text-xs text-slate-500">${lead.cidade || ''}/${lead.estado || ''}</span><br>
+                                    <span class="text-xs font-bold ${isClosed ? 'text-green-600' : 'text-orange-500'}">${lead.etapa}</span>
                                 </div>
-                            </div>`;
-                }).join('');
-            };
+                             `);
+                        });
+                    }
+                }
+                this.loadingMap = false;
+            },
 
-            const renderCharts = (data) => {
-                const tooltipPercentage = { callbacks: { label: (c) => `${c.label}: ${c.raw.toFixed(1)} (${((c.raw/c.chart.getDatasetMeta(0).total)*100).toFixed(1)}%)` } };
+            updateCharts() {
+                const leadsData = this.filteredDashboardLeads;
                 
-                // --- GRÁFICO DE SITUAÇÃO (BARRAS HORIZONTAIS) ---
-                const statusCounts = data.reduce((acc, lead) => {
-                    const situacao = lead.situacao || 'Não definido';
-                    acc[situacao] = (acc[situacao] || 0) + 1;
-                    return acc;
-                }, {});
-
-                // Ordena os dados para exibir as situações mais comuns no topo
-                const sortedStatusEntries = Object.entries(statusCounts).sort(([,a],[,b]) => a - b);
-                const sortedLabels = sortedStatusEntries.map(entry => entry[0]);
-                const sortedData = sortedStatusEntries.map(entry => entry[1]);
-
-                const statusData = {
-                    labels: sortedLabels,
-                    datasets: [{
-                        label: 'Total de Leads',
-                        data: sortedData,
-                        backgroundColor: sortedLabels.map(s => getStatusChartColor(s)),
-                        borderRadius: 4
-                    }]
-                };
-
-                if(statusChartInstance) statusChartInstance.destroy();
-                statusChartInstance = new Chart(document.getElementById('statusChart'), {
-                    type: 'bar',
-                    data: statusData,
-                    options: {
-                        indexAxis: 'y', // <-- Isso cria o gráfico de barras horizontal
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: { 
-                                beginAtZero: true,
-                                ticks: { color: '#4b5563', precision: 0 } 
-                            },
-                            y: { 
-                                ticks: { color: '#4b5563' } 
-                            }
+                const ctxOrigem = document.getElementById('chartOrigem');
+                if(ctxOrigem) {
+                    if(this.charts.origem) this.charts.origem.destroy();
+                    const data = this.statsPorOrigem;
+                    this.charts.origem = new Chart(ctxOrigem, {
+                        type: 'doughnut',
+                        data: {
+                            labels: data.map(d => d.nome),
+                            datasets: [{ 
+                                data: data.map(d => d.total), 
+                                backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
+                                borderWidth: 0
+                            }]
                         },
-                        plugins: {
-                            legend: { display: false }, // Legenda é desnecessária com os eixos
-                            tooltip: {
-                                callbacks: {
-                                    label: (c) => ` Leads: ${c.raw}`
-                                }
-                            }
-                        }
-                    }
-                });
-                
-                // --- GRÁFICO DE INDICAÇÃO (PIZZA) ---
-                const sourceCounts = data.reduce((acc, lead) => {
-                    const indicacao = lead.indicacao || 'Não definido';
-                    acc[indicacao] = (acc[indicacao] || 0) + 1;
-                    return acc;
-                }, {});
-                const sourceData = {
-                    labels: Object.keys(sourceCounts),
-                    datasets: [{
-                        data: Object.values(sourceCounts),
-                        backgroundColor: ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981', '#f97316', '#6366f1'],
-                        borderColor: '#fff', borderWidth: 4
-                    }]
-                };
-                if(sourceChartInstance) sourceChartInstance.destroy();
-                sourceChartInstance = new Chart(document.getElementById('sourceChart'), { type: 'pie', data: sourceData, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#4b5563' } }, tooltip: tooltipPercentage } } });
-                
-                // --- GRÁFICO DE EFICÁCIA (BARRAS VERTICAIS) ---
-                const sourceConversionData = {};
-                data.forEach(lead => {
-                    const source = lead.indicacao || 'Não definido';
-                    if (!sourceConversionData[source]) sourceConversionData[source] = { total: 0, converted: 0 };
-                    sourceConversionData[source].total++;
-                    if ((lead.situacao || '').toLowerCase().includes('fechado')) sourceConversionData[source].converted++;
-                });
-                const sourceLabels = Object.keys(sourceConversionData);
-                const conversionRates = sourceLabels.map(s => (sourceConversionData[s].total > 0 ? (sourceConversionData[s].converted / sourceConversionData[s].total) * 100 : 0));
-                const sourceConversionChartData = {
-                    labels: sourceLabels,
-                    datasets: [{
-                        label: 'Taxa de Conversão (%)',
-                        data: conversionRates,
-                        backgroundColor: '#22c55e',
-                        borderColor: '#16a34a',
-                        borderWidth: 1,
-                        borderRadius: 4
-                    }]
-                };
-                if(sourceConversionChartInstance) sourceConversionChartInstance.destroy();
-                sourceConversionChartInstance = new Chart(document.getElementById('sourceConversionChart'), { type: 'bar', data: sourceConversionChartData, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { beginAtZero: true, max: 100, ticks: { color: '#4b5563', callback: (v) => `${v}%` } }, y: { ticks: { color: '#4b5563' } } }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `Conversão: ${c.raw.toFixed(1)}%` } } } } });
-            }
-
-            const renderTable = (data) => {
-                tableResultsCount.textContent = `${data.length} resultado(s) encontrado(s).`;
-                if (data.length === 0) {
-                    tableBody.innerHTML = '';
-                    noResultsDiv.classList.remove('hidden');
-                    return;
-                }
-                noResultsDiv.classList.add('hidden');
-                tableBody.innerHTML = data.map(lead => `<tr class="hover:bg-slate-50 transition-colors"><td class="p-4">${lead.data}</td><td class="p-4">${lead.consultor}</td><td class="p-4">${lead.indicacao}</td><td class="p-4"><span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(lead.situacao)}">${lead.situacao}</span></td><td class="p-4">${lead.contato}</td><td class="p-4 text-center"><button class="text-brand-primary hover:text-brand-primary-dark" data-action="view" data-id="${lead.id}" title="Ver Observações"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.012 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg></button></td></tr>`).join('');
-            };
-            
-            const applyFilters = () => {
-                const consultor = filterConsultor.value;
-                const situacao = filterSituacao.value;
-                const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
-                const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
-                const searchTerm = searchContactInput.value.trim(); // Pega o valor da busca
-
-                if (startDate) startDate.setUTCHours(0, 0, 0, 0);
-                if (endDate) endDate.setUTCHours(23, 59, 59, 999);
-                
-                const filteredLeads = leads.filter(lead => 
-                    (consultor ? lead.consultor === consultor : true) && 
-                    (situacao ? (lead.situacao || '').toUpperCase() === situacao.toUpperCase() : true) && 
-                    (!startDate || (lead.dateObject && lead.dateObject >= startDate)) && 
-                    (!endDate || (lead.dateObject && lead.dateObject <= endDate)) &&
-                    (searchTerm ? (lead.contato || '').includes(searchTerm) : true) // LÓGICA DA BUSCA
-                );
-                
-                updateDashboard(filteredLeads, true);
-            };
-            
-            const updateDashboard = (data, shouldUpdateTable = true) => {
-                renderKpis(data);
-                if (shouldUpdateTable) renderTable(data);
-                // Atualiza os gráficos somente se a busca estiver vazia, para não distorcer as métricas
-                if (searchContactInput.value.trim() === '') {
-                    renderCharts(data);
-                }
-            }
-            
-            function closeModal(modal) { modal.classList.add('hidden'); }
-            
-            // --- EVENT LISTENERS ---
-            
-            filterBtn.addEventListener('click', applyFilters);
-            searchContactInput.addEventListener('keyup', applyFilters); // APLICA FILTRO AO DIGITAR
-
-            clearFilterBtn.addEventListener('click', () => {
-                filterConsultor.value = '';
-                filterSituacao.value = '';
-                startDateInput.value = '';
-                endDateInput.value = '';
-                searchContactInput.value = ''; // Limpa a busca
-                updateDashboard(leads);
-                renderCharts(leads); // Garante que os gráficos voltem ao normal
-            });
-
-            refreshBtn.addEventListener('click', () => {
-                initializeDashboard();
-            });
-
-            kpiContainer.addEventListener('click', (e) => {
-                const kpiCard = e.target.closest('[data-filter-value]');
-                if (!kpiCard) return;
-                const filterValue = kpiCard.dataset.filterValue;
-                if(filterValue === '') {
-                    filterSituacao.value = '';
-                } else {
-                    const option = Array.from(filterSituacao.options).find(opt => opt.textContent.toLowerCase().includes(filterValue));
-                    filterSituacao.value = option ? option.value : '';
-                }
-                applyFilters();
-            });
-
-            tableBody.addEventListener('click', (e) => {
-                const button = e.target.closest('button[data-action="view"]');
-                if (!button) return;
-                const id = button.dataset.id;
-                const leadToView = leads.find(l => l.id == id);
-                if (leadToView) {
-                    currentLeadInView = leadToView;
-                    observationContent.textContent = leadToView.observacao || 'Nenhuma observação registada.';
-                    geminiResultContainer.classList.add('hidden');
-                    geminiResultContent.innerHTML = '';
-                    observationModal.classList.remove('hidden');
-                }
-            });
-
-            summarizeBtn.addEventListener('click', () => {
-                if (currentLeadInView?.observacao) {
-                    const prompt = `Resuma as seguintes observações de um lead comercial em 2 ou 3 pontos principais, em português. Seja conciso e direto:\n\n"${currentLeadInView.observacao}"`;
-                    callGeminiAPI(prompt, geminiResultContainer, geminiLoader, geminiResultContent);
-                } else {
-                    geminiResultContent.textContent = 'Não há observações para resumir.';
-                    geminiResultContainer.classList.remove('hidden');
-                }
-            });
-
-            suggestBtn.addEventListener('click', () => {
-                if (currentLeadInView) {
-                    const prompt = `Aja como um gestor de vendas experiente. Para um lead com a situação "${currentLeadInView.situacao}" e as seguintes observações: "${currentLeadInView.observacao || 'Nenhuma observação anterior'}", sugira um próximo passo claro e acionável para o consultor. Responda em português.`;
-                    callGeminiAPI(prompt, geminiResultContainer, geminiLoader, geminiResultContent);
-                }
-            });
-
-            strategicAnalysisBtn.addEventListener('click', () => {
-                strategicModal.classList.remove('hidden');
-                const consultor = filterConsultor.value;
-                const situacao = filterSituacao.value;
-                const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
-                const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
-                if (startDate) startDate.setUTCHours(0, 0, 0, 0);
-                if (endDate) endDate.setUTCHours(23, 59, 59, 999);
-                const dataToAnalyze = leads.filter(lead => (consultor ? lead.consultor === consultor : true) && (situacao ? (lead.situacao || '').toUpperCase() === situacao.toUpperCase() : true) && (!startDate || (lead.dateObject && lead.dateObject >= startDate)) && (!endDate || (lead.dateObject && lead.dateObject <= endDate)));
-
-                if (dataToAnalyze.length === 0) {
-                     strategicResultContent.textContent = "Não há dados de leads para analisar com os filtros atuais. Limpe os filtros ou selecione outro período.";
-                     return;
-                }
-                const leadsDataForPrompt = dataToAnalyze.map(l => ` - Situação: ${l.situacao}, Indicação: ${l.indicacao}, Consultor: ${l.consultor}`).join('\n');
-                const prompt = `Aja como um diretor de vendas. Analise os seguintes dados de uma equipe comercial.\n\nDados:\n${leadsDataForPrompt}\n\nCom base nestes dados, identifique:\n1. **Pontos Fortes:** Quais são as fontes de leads (indicação) mais eficazes ou as situações que estão a levar a bons resultados?\n2. **Pontos Fracos:** Onde é que o processo de vendas parece estar a falhar? Há algum padrão nos leads perdidos ou estagnados?\n3. **Sugestão Acionável:** Dê uma sugestão estratégica e clara para a equipe melhorar os seus resultados no próximo mês.\n\nResponda em português (Brasil) com uma formatação clara usando títulos para cada secção.`;
-                callGeminiAPI(prompt, document.getElementById('strategic-content'), strategicLoader, strategicResultContent);
-            });
-            
-            closeObservationBtn.addEventListener('click', () => closeModal(observationModal));
-            observationModal.addEventListener('click', (e) => { if (e.target === observationModal) closeModal(observationModal); });
-            
-            closeStrategicBtn.addEventListener('click', () => closeModal(strategicModal));
-            strategicModal.addEventListener('click', (e) => { if (e.target === strategicModal) closeModal(strategicModal); });
-            
-            // --- LÓGICA FUNCIONAL PARA O MODAL "AJUDA CONSULTOR" ---
-
-            consultantHelperBtn.addEventListener('click', () => {
-                consultantHelperModal.classList.remove('hidden');
-            });
-
-            getSuggestionBtn.addEventListener('click', () => {
-                const userQuery = consultantQueryInput.value;
-                if (!userQuery.trim()) {
-                    consultantHelperResultContent.innerHTML = '<p>Por favor, insira a dúvida do cliente no campo acima.</p>';
-                    consultantHelperContent.classList.remove('hidden');
-                    return;
-                }
-                
-                const prompt = `Aja como um especialista sênior em assessoria para benefícios do INSS e seguros, com foco em clientes das classes C e D no Brasil. Seu objetivo é ajudar um consultor a superar objeções e responder a dúvidas de forma clara, simples e empática. A dúvida ou objeção do cliente é: "${userQuery}".\n\nForneça uma resposta estruturada para o consultor usar, com as seguintes seções:\n1. **Empatia e Validação:** Comece mostrando que entende a frustração ou a preocupação do cliente (ex: "Eu entendo perfeitamente sua preocupação com a demora...").\n2. **Argumento Principal:** Apresente a solução ou o contraponto, destacando o valor da assessoria (ex: "É exatamente por isso que nosso trabalho é importante...").\n3. **Exemplo ou Prova Social:** Use um exemplo prático ou mencione casos de sucesso para gerar confiança.\n4. **Fechamento:** Sugira o próximo passo ou faça uma pergunta para engajar o cliente e continuar a conversa.\n\nUse uma linguagem que se conecte com este público, evitando jargões técnicos e jurídicos.`;
-                
-                callGeminiAPI(prompt, consultantHelperContent, consultantHelperLoader, consultantHelperResultContent);
-            });
-
-            closeConsultantHelperBtn.addEventListener('click', () => closeModal(consultantHelperModal));
-            consultantHelperModal.addEventListener('click', (e) => { if (e.target === consultantHelperModal) closeModal(consultantHelperModal); });
-
-
-            // 2. Lógica para o "Exportar para PDF"
-            exportPdfBtn.addEventListener('click', () => {
-                const { jsPDF } = window.jspdf;
-                const contentToExport = document.getElementById('strategic-result-content');
-                const loader = document.getElementById('strategic-loader');
-
-                if (!contentToExport.innerText.trim() || !loader.classList.contains('hidden')) {
-                    alert('Por favor, espere a análise ser gerada antes de exportar.');
-                    return;
-                }
-
-                html2canvas(contentToExport, { 
-                    scale: 2, // Melhora a qualidade da imagem
-                    useCORS: true 
-                }).then(canvas => {
-                    const imgData = canvas.toDataURL('image/png');
-                    const pdf = new jsPDF({
-                        orientation: 'portrait',
-                        unit: 'pt',
-                        format: 'a4'
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
                     });
-                    
-                    const pdfWidth = pdf.internal.pageSize.getWidth();
-                    const pdfHeight = pdf.internal.pageSize.getHeight();
-                    const margin = 40; 
-                    const contentWidth = pdfWidth - (margin * 2);
-                    
-                    const canvasWidth = canvas.width;
-                    const canvasHeight = canvas.height;
-                    const ratio = canvasWidth / canvasHeight;
-                    const contentHeight = contentWidth / ratio;
-                    
-                    let position = margin;
-
-                    pdf.setFont('Inter', 'normal');
-                    pdf.setFontSize(20);
-                    pdf.text('Análise Estratégica de Leads - ReVive', margin, margin);
-                    position += 30;
-
-                    if (position + contentHeight < pdfHeight - margin) {
-                        pdf.addImage(imgData, 'PNG', margin, position, contentWidth, contentHeight);
-                    } else {
-                        console.warn("O conteúdo é muito grande para caber em uma única página e pode ser cortado.");
-                        pdf.addImage(imgData, 'PNG', margin, position, contentWidth, 0); 
-                    }
-
-                    pdf.save('analise_estrategica_revive.pdf');
-                }).catch(err => {
-                    console.error("Erro ao gerar o PDF:", err);
-                    alert("Ocorreu um erro ao tentar gerar o PDF.");
-                });
-            });
-
-            // --- INICIALIZAÇÃO ---
-            const initializeDashboard = async () => {
-                // Define as datas padrão para o mês corrente
-                const today = new Date();
-                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-                const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
-                // Formata as datas para o formato YYYY-MM-DD que o input de data aceita
-                const formatDate = (date) => {
-                    const d = new Date(date);
-                    let month = '' + (d.getMonth() + 1);
-                    let day = '' + d.getDate();
-                    const year = d.getFullYear();
-
-                    if (month.length < 2) 
-                        month = '0' + month;
-                    if (day.length < 2) 
-                        day = '0' + day;
-
-                    return [year, month, day].join('-');
                 }
 
-                // Define os valores nos campos de data da interface
-                startDateInput.value = formatDate(firstDay);
-                endDateInput.value = formatDate(lastDay);
+                const ctxEtapas = document.getElementById('chartEtapas');
+                if(ctxEtapas) {
+                    if(this.charts.etapas) this.charts.etapas.destroy();
+                    const data = this.etapas.map(e => leadsData.filter(l => l.etapa === e).length);
+                    this.charts.etapas = new Chart(ctxEtapas, {
+                        type: 'bar',
+                        data: {
+                            labels: this.etapas.map(e => e.split(' ')[0]),
+                            datasets: [{ label: 'Leads', data: data, backgroundColor: '#6366F1', borderRadius: 6 }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y' }
+                    });
+                }
+            },
 
-                // Busca todos os dados da planilha
-                await fetchSheetData();
+            startDrag(evt, lead) {
+                evt.dataTransfer.dropEffect = 'move';
+                evt.dataTransfer.effectAllowed = 'move';
+                evt.dataTransfer.setData('leadId', lead.id);
+            },
+            async onDrop(evt, novaEtapa) {
+                const leadId = evt.dataTransfer.getData('leadId');
+                const lead = this.leads.find(l => l.id === leadId);
+                
+                if (lead && novaEtapa === 'Negociação' && !lead.nome) {
+                    alert("🚫 Preencha o NOME antes de negociar.");
+                    return;
+                }
 
-                // Aplica os filtros de data (do mês atual) automaticamente
-                applyFilters();
-            };
+                if(lead) {
+                    lead.etapa = novaEtapa;
+                    if(this.view === 'dashboard') this.updateCharts();
+                }
 
-            initializeDashboard();
+                if (novaEtapa === 'Recebido (Fechado)') {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                    if (!lead.dataFechamento) lead.dataFechamento = new Date().toISOString().split('T')[0];
+                }
 
-        });
-    </script>
+                if (this.dbConnected) {
+                    const leadRef = doc(db, 'leads', leadId);
+                    const updatePayload = { etapa: novaEtapa };
+                    if(lead.dataFechamento) updatePayload.dataFechamento = lead.dataFechamento;
+                    await updateDoc(leadRef, updatePayload);
+                }
+            },
+
+            openModal() {
+                this.form = { 
+                    id: null, nome: '', telefone: '', beneficio: '', condicao: '',
+                    cidade: '', estado: '', obs: '', consultor: '',
+                    origem: 'Meta', campanha: '',
+                    receitaEstimada: 0, receitaRealizada: 0,
+                    etapa: 'Primeiro Contato', 
+                    historicoMsg: [], 
+                    msgAtiva: false,
+                    dataFechamento: ''
+                };
+                this.novaMsgCoord = ''; this.novaMsgVendedor = '';
+                this.editingLead = null;
+                this.showModal = true;
+                // Reseta lista de cidades
+                this.cidadesPorEstado = [];
+            },
+            editLead(lead) {
+                this.form = { ...lead };
+                // Carrega cidades do estado do lead para preencher o dropdown
+                if(this.form.estado) {
+                    this.carregarCidades(this.form.estado);
+                }
+                
+                // Garantir array se for antigo
+                if(!this.form.historicoMsg) this.form.historicoMsg = [];
+                // Migração legado se existir msg antiga
+                if(this.form.msgCoordenador && this.form.historicoMsg.length === 0) {
+                     this.form.historicoMsg.push({ tipo: 'coord', texto: this.form.msgCoordenador, data: new Date().toISOString() });
+                }
+                this.novaMsgCoord = ''; this.novaMsgVendedor = '';
+                this.editingLead = true;
+                this.showModal = true;
+            },
+            async saveLead() {
+                if (!this.dbConnected) return alert("Erro: Offline.");
+                const data = { ...this.form };
+                data.sala = this.salaAtual;
+                delete data.id;
+
+                const leadsRef = collection(db, 'leads');
+                if (this.editingLead) {
+                    await updateDoc(doc(db, 'leads', this.form.id), data);
+                } else {
+                    data.dataCriacao = new Date().toISOString();
+                    await addDoc(leadsRef, data);
+                }
+                this.closeModal();
+                this.showToast('Salvo com sucesso!');
+            },
+            async deleteLead() {
+                if(!confirm('Excluir?')) return;
+                await deleteDoc(doc(db, 'leads', this.form.id));
+                this.closeModal();
+            },
+            closeModal() { this.showModal = false; },
+            addConsultor() {
+                if(this.novoConsultor) {
+                    this.listaConsultores.push(this.novoConsultor);
+                    localStorage.setItem('revive_consultores', JSON.stringify(this.listaConsultores));
+                    this.novoConsultor = '';
+                }
+            },
+            removeConsultor(index) {
+                this.listaConsultores.splice(index, 1);
+                localStorage.setItem('revive_consultores', JSON.stringify(this.listaConsultores));
+            }
+        }
+    }).mount('#app');
+</script>
 </body>
 </html>
-
